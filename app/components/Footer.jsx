@@ -141,16 +141,16 @@ export function Footer() {
         <div className="pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-4"><img 
-            src="/logo2.png" 
-            alt="ConnectEd Logo" 
-            className="h-10 w-10 object-contain"
+            src="/Azroute.jpeg" 
+            alt="Azroute Logo" 
+            className="h-20 w-20 object-contain"
           />
-              <Link href="/" className="font-bold text-xl">
-                ConnectEd
-              </Link>
+              {/* <Link href="/" className="font-bold text-xl">
+                Azroute
+              </Link> */}
               <span className="text-sm text-muted-foreground">
                 
-                © {currentYear} ConnectEd Learning. All rights reserved.
+                © {currentYear} AzrouteChessInstitue. All rights reserved.
               </span>
             </div>
             <div className="flex items-center space-x-4">

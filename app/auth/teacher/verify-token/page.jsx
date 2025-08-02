@@ -61,14 +61,18 @@ function VerificationContent() {
     
     if (status === 'success' && redirectUrl) {
       countdownInterval = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            router.push(redirectUrl);
-            return 0;
-          }
-          return prev - 1;
-        });
+      setRedirectCountdown((prev) => {
+  if (prev <= 1) {
+    clearInterval(countdownInterval);
+    // Use timeout to avoid calling router.push inside render
+    setTimeout(() => {
+      router.push(redirectUrl);
+    }, 0);
+    return 0;
+  }
+  return prev - 1;
+});
+
       }, 1000);
     }
 
