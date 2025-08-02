@@ -1,0 +1,188 @@
+/* Tailwind Imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Color Variables */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+/* Apply base styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Background Pattern */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Gradient Animation - Added "no-animation" class for initial SSR */
+.animated-gradient {
+  background-size: 200% 200%;
+  background-image: linear-gradient(
+    45deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--secondary)) 50%,
+    hsl(var(--accent)) 100%
+  );
+
+  /* Enable animation only if "no-animation" class is absent */
+  &:not(.no-animation) {
+    animation: gradient 15s ease infinite;
+  }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Common Utility Classes */
+.glass-effect {
+  @apply bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+}
+
+/* Hover Animations he*/
+
+.hover-scale {
+  @apply transition-transform duration-300 ease-in-out;
+  &:hover {
+    @apply transform scale-105;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-secondary;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-primary rounded-full;
+  &:hover {
+    @apply bg-primary/80;
+  }
+}
+
+/* Loading Animations - Added "no-animation" for initial SSR */
+.loading-pulse {
+  @apply bg-muted rounded;
+  &:not(.no-animation) {
+    @apply animate-pulse;
+  }
+}
+
+.loading-spin {
+  &:not(.no-animation) {
+    @apply animate-spin;
+  }
+}
+
+/* Form Elements */
+input,
+textarea,
+select {
+  @apply rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+    file:border-0 file:bg-transparent file:text-sm file:font-medium
+    placeholder:text-muted-foreground
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+    disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  @apply transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary/50;
+}
+
+/* Navigation Active States */
+.nav-link {
+  @apply text-muted-foreground hover:text-foreground transition-colors duration-200;
+  &.active {
+    @apply text-primary font-medium;
+  }
+}
+
+/* Container Sizes */
+.container {
+  @apply mx-auto px-4;
+  max-width: 1400px;
+
+  @screen sm {
+    @apply px-6;
+  }
+
+  @screen lg {
+    @apply px-8;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold tracking-tight;
+}
+
+h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+h2 { @apply text-3xl md:text-4xl lg:text-5xl; }
+h3 { @apply text-2xl md:text-3xl lg:text-4xl; }
+h4 { @apply text-xl md:text-2xl lg:text-3xl; }
+h5 { @apply text-lg md:text-xl; }
+h6 { @apply text-base md:text-lg; }
