@@ -56,28 +56,33 @@ function VerificationContent() {
   }, [token]);
 
   // Handle countdown and redirect
-  useEffect(() => {
-    let countdownInterval;
-    
-    if (status === 'success' && redirectUrl) {
-      countdownInterval = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            router.push(redirectUrl);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
+// Countdown timer setup
+useEffect(() => {
+  let countdownInterval;
 
-    return () => {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-    };
-  }, [status, redirectUrl, router]);
+  if (status === 'success' && redirectUrl) {
+    countdownInterval = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
+
+  return () => {
+    if (countdownInterval) clearInterval(countdownInterval);
+  };
+}, [status, redirectUrl]);
+
+// Handle redirection separately
+useEffect(() => {
+  if (redirectCountdown === 0 && redirectUrl) {
+    router.push(redirectUrl);
+  }
+}, [redirectCountdown, redirectUrl, router]);
 
   return (
     <Card className="w-full max-w-lg">

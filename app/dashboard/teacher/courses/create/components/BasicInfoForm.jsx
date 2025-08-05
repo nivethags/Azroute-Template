@@ -102,9 +102,9 @@ export function BasicInfoForm({ data, onChange }) {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="medical">Medical</SelectItem>
-              <SelectItem value="dental">Dental</SelectItem>
-              <SelectItem value="nursing">Nursing</SelectItem>
+              <SelectItem value="Entry">Entry</SelectItem>
+              <SelectItem value="Mid">Mid</SelectItem>
+              <SelectItem value="Advance">Advance</SelectItem>
             </SelectContent>
           </Select>
         </div>

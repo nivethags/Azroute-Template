@@ -179,9 +179,9 @@ function BasicInfoForm({ data, onChange }) {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Medical">Medical</SelectItem>
-              <SelectItem value="Dental">Dental</SelectItem>
-              <SelectItem value="Nursing">Nursing</SelectItem>
+              <SelectItem value="Entry">Entry</SelectItem>
+              <SelectItem value="Midd">Midd</SelectItem>
+              <SelectItem value="Advance">Advance</SelectItem>
             </SelectContent>
           </Select>
         </div>

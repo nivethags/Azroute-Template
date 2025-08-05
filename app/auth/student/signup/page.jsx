@@ -148,6 +148,16 @@ export default function StudentSignup() {
       const processedSubjects = formData.subjects
         .filter(subject => subject.type !== '')
         .map(subject => subject.type === 'Other' ? subject.customValue.trim() : subject.type);
+console.log({
+  firstName: formData.firstName.trim(),
+  middleName: formData.middleName.trim(),
+  lastName: formData.lastName.trim(),
+  username: formData.username.trim(),
+  email: formData.email.trim().toLowerCase(),
+  password: formData.password,
+  preferredContactNumber: formData.preferredContactNumber.trim(),
+  subjectsOfInterest: processedSubjects
+});
 
       const response = await fetch('/api/auth/student/signup', {
         method: 'POST',
