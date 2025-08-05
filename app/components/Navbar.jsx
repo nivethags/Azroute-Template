@@ -137,14 +137,14 @@ export function Navbar() {
     >
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href={user ? `/dashboard/${user.role}` : "/"} className="flex items-center space-x-0">
-          <img 
-            src="/logo2.png" 
-            alt="ConnectEd Logo" 
-            className="h-15 w-16 object-contain"
-          />
+       <Link href={user ? `/dashboard/${user.role}` : "/"} className="flex items-center space-x-2">
+  <img 
+    src="/Azroute.jpeg" 
+    alt="Azroute Logo" 
+    className="h-20 w-34 object-contain"
+  />
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-            ConnectEd
+            
           </span>
         </Link>
 
@@ -156,8 +156,8 @@ export function Navbar() {
                 variant="ghost" 
                 className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
               >
-                <span>Browse</span>
-                <ChevronDown className="h-4 w-4 ml-1" />
+                {/* <span>Browse</span> */}
+                {/* <ChevronDown className="h-4 w-4 ml-1" /> */}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64">
@@ -206,7 +206,7 @@ export function Navbar() {
               asChild
               className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <Link href="/auth/teacher/login">Teach on ConnectEd</Link>
+              <Link href="/auth/teacher/login">Teach on Azroute</Link>
             </Button>
           )}
         </div>
