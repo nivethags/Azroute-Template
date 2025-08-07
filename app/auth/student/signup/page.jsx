@@ -81,27 +81,7 @@ export default function StudentSignup() {
     setError('');
   };
 
-  const handleSubjectChange = (index, value) => {
-    setFormData(prev => {
-      const newSubjects = [...prev.subjects];
-      newSubjects[index] = {
-        type: value,
-        customValue: value === 'Other' ? '' : value
-      };
-      return { ...prev, subjects: newSubjects };
-    });
-  };
 
-  const handleCustomSubjectChange = (index, value) => {
-    setFormData(prev => {
-      const newSubjects = [...prev.subjects];
-      newSubjects[index] = {
-        ...newSubjects[index],
-        customValue: value
-      };
-      return { ...prev, subjects: newSubjects };
-    });
-  };
 
   const validateForm = () => {
     if (!formData.firstName.trim()) return 'First name is required';
@@ -114,20 +94,6 @@ export default function StudentSignup() {
     if (!validatePassword(formData.password)) return 'Password does not meet requirements';
     if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
     if (!formData.preferredContactNumber.trim()) return 'Contact number is required';
-
-    const validSubjects = formData.subjects.filter(subject => 
-      (subject.type !== 'Other' && subject.type !== '') || 
-      (subject.type === 'Other' && subject.customValue.trim() !== '')
-    );
-
-    if (validSubjects.length === 0) return 'Please select at least one subject';
-
-    const invalidCustomSubject = formData.subjects.some(subject => 
-      subject.type === 'Other' && subject.customValue.trim() === ''
-    );
-
-    if (invalidCustomSubject) return 'Please enter a value for custom subjects';
-
     return '';
   };
 
@@ -145,9 +111,7 @@ export default function StudentSignup() {
     setSuccess('');
 
     try {
-      const processedSubjects = formData.subjects
-        .filter(subject => subject.type !== '')
-        .map(subject => subject.type === 'Other' ? subject.customValue.trim() : subject.type);
+      
 console.log({
   firstName: formData.firstName.trim(),
   middleName: formData.middleName.trim(),
@@ -155,8 +119,7 @@ console.log({
   username: formData.username.trim(),
   email: formData.email.trim().toLowerCase(),
   password: formData.password,
-  preferredContactNumber: formData.preferredContactNumber.trim(),
-  subjectsOfInterest: processedSubjects
+  preferredContactNumber: formData.preferredContactNumber.trim()
 });
 
       const response = await fetch('/api/auth/student/signup', {
@@ -169,8 +132,7 @@ console.log({
           username: formData.username.trim(),
           email: formData.email.trim().toLowerCase(),
           password: formData.password,
-          preferredContactNumber: formData.preferredContactNumber.trim(),
-          subjectsOfInterest: processedSubjects
+          preferredContactNumber: formData.preferredContactNumber.trim()
         })
       });
 
@@ -336,47 +298,7 @@ console.log({
               <p className="text-sm text-gray-500">e.g. mobile, work or home number</p>
             </div>
 
-            <div className="space-y-4">
-              <Label>Subjects of Interest <span className="text-red-500">*</span></Label>
-              <p className="text-sm text-gray-500">Select up to three subjects you want to study</p>
-              
-              {[0, 1, 2].map((index) => (
-                <div key={index} className="space-y-2">
-                  <Select
-                    value={formData.subjects[index].type}
-                    onValueChange={(value) => handleSubjectChange(index, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={`Select Subject ${index + 1}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PRESET_SUBJECTS.map((subject) => (
-                        <SelectItem
-                          key={subject}
-                          value={subject}
-                          disabled={
-                            subject !== 'Other' && 
-                            formData.subjects.some(s => s.type === subject) && 
-                            formData.subjects[index].type !== subject
-                          }
-                        >
-                          {subject}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {formData.subjects[index].type === 'Other' && (
-                    <Input
-                      placeholder="Enter your subject"
-                      value={formData.subjects[index].customValue}
-                      onChange={(e) => handleCustomSubjectChange(index, e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
+      
 
             <Button
               type="submit"

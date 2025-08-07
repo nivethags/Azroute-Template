@@ -16,15 +16,13 @@ export async function POST(request) {
       email, 
       password, 
       phoneNumber,
-      department,
-      subjectsToTeach,
       qualification,
       experience
     } = await request.json();
 
     // Input validation
     if (!firstName || !lastName || !email || !password || !phoneNumber || 
-        !qualification || !experience || !subjectsToTeach) {
+        !qualification || !experience ) {
       return Response.json(
         { message: "All required fields must be filled" },
         { status: 400 }
@@ -57,13 +55,6 @@ export async function POST(request) {
       );
     }
 
-    // Validate subjects
-    if (!Array.isArray(subjectsToTeach) || subjectsToTeach.length === 0 || subjectsToTeach.length > 3) {
-      return Response.json(
-        { message: "Please select between 1 and 3 subjects to teach" },
-        { status: 400 }
-      );
-    }
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -77,8 +68,6 @@ export async function POST(request) {
       email: email.toLowerCase().trim(),
       password,
       phoneNumber: phoneNumber.trim(),
-      department: department?.trim(),
-      subjectsToTeach,
       qualification: qualification.trim(),
       experience: experience.trim(),
       verificationToken,
