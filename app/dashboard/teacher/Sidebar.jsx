@@ -1,22 +1,17 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  BarChart2,
   Book,
   Calendar,
-  Video,
-  Upload,
-  Settings,
   Layout,
   ChevronLeft,
   ChevronRight,
-  User2,
-  GraduationCap,
   MessageSquare,
-  BarChart
-} from 'lucide-react';
+  FileText,
+  Video // <-- Icon for Demo Class
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Sidebar = () => {
@@ -31,85 +26,57 @@ const Sidebar = () => {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/check', {
-        credentials: 'include'
+      const response = await fetch("/api/auth/check", {
+        credentials: "include",
       });
       if (response.ok) {
         const data = await response.json();
-        if (data.user && data.user.role === 'teacher') {
+        if (data.user && data.user.role === "teacher") {
           setTeacher({
             name: getFullName(data.user),
             email: data.user.email,
             avatar: data.user.profile?.avatar,
-            initials: getInitials(data.user)
+            initials: getInitials(data.user),
           });
         }
       }
     } catch (error) {
-      console.error('Auth check error:', error);
+      console.error("Auth check error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const getFullName = (user) => {
-    if (!user) return '';
+    if (!user) return "";
     return [user.firstName, user.middleName, user.lastName]
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
   };
 
   const getInitials = (user) => {
-    if (!user) return '';
+    if (!user) return "";
     return [user.firstName, user.lastName]
       .filter(Boolean)
-      .map(name => name?.[0] || '')
-      .join('')
+      .map((name) => name?.[0] || "")
+      .join("")
       .toUpperCase();
   };
 
   const menuItems = [
-    { 
-      icon: Layout, 
-      label: 'Dashboard', 
-      href: '/dashboard/teacher' 
-    },
-    { 
-      icon: Book, 
-      label: 'My Courses', 
-      href: '/dashboard/teacher/courses' 
-    },
-    // { 
-    //   icon: GraduationCap, 
-    //   label: 'Students', 
-    //   href: '/dashboard/teacher/students' 
-    // },
-    { 
-      icon: Calendar, 
-      label: 'Events', 
-      href: '/dashboard/teacher/events' 
-    },
-    { 
-      icon: MessageSquare, 
-      label: 'Live Classes', 
-      href: '/dashboard/teacher/livestreams' 
-    },
-    // { 
-    //   icon: BarChart, 
-    //   label: 'Earnings', 
-    //   href: '/dashboard/teacher/earnings' 
-    // },
-    // { 
-    //   icon: Upload, 
-    //   label: 'Upload Course', 
-    //   href: '/dashboard/teacher/courses/upload' 
-    // }
+    { icon: Layout, label: "Dashboard", href: "/dashboard/teacher" },
+    { icon: Book, label: "My Courses", href: "/dashboard/teacher/courses" },
+    { icon: Calendar, label: "Events", href: "/dashboard/teacher/events" },
+    { icon: MessageSquare, label: "Live Classes", href: "/dashboard/teacher/livestreams" },
+    { icon: FileText, label: "Add Marks", href: "/dashboard/teacher/marks" },
+    { icon: Video, label: "Demo Class", href: "/dashboard/teacher/demo-class" } // <-- Added Demo Class link
   ];
 
   return (
-    <div 
-      className={`relative min-h-screen bg-white border-r shadow-sm transition-all duration-300 ease-in-out
-        ${isCollapsed ? 'w-20' : 'w-64'}`}
+    <div
+      className={`relative min-h-screen bg-white border-r shadow-sm transition-all duration-300 ease-in-out ${
+        isCollapsed ? "w-20" : "w-64"
+      }`}
     >
       {/* Toggle Button */}
       <button
@@ -134,15 +101,18 @@ const Sidebar = () => {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center px-3 py-3 rounded-lg transition-colors
-                    ${isActive 
-                      ? 'bg-primary text-white' 
-                      : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`flex items-center px-3 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
-                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
-                  {!isCollapsed && (
-                    <span className="ml-3">{item.label}</span>
-                  )}
+                  <IconComponent
+                    className={`h-5 w-5 ${
+                      isActive ? "text-white" : "text-gray-500"
+                    }`}
+                  />
+                  {!isCollapsed && <span className="ml-3">{item.label}</span>}
                 </Link>
               </li>
             );
@@ -170,24 +140,24 @@ const Sidebar = () => {
             <>
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 {teacher?.avatar ? (
-                  <img 
-                    src={teacher.avatar} 
+                  <img
+                    src={teacher.avatar}
                     alt={teacher.name}
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
                   <span className="text-sm font-medium text-white">
-                    {teacher?.initials || ''}
+                    {teacher?.initials || ""}
                   </span>
                 )}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-700 truncate">
-                    {teacher?.name || 'Loading...'}
+                    {teacher?.name || "Loading..."}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {teacher?.email || 'Loading...'}
+                    {teacher?.email || "Loading..."}
                   </p>
                 </div>
               )}

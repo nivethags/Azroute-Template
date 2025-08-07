@@ -152,7 +152,6 @@ const CourseCatalog = () => {
 
   const [filters, setFilters] = useState({
     search: searchParams?.get('search') || '',
-    category: searchParams?.get('category') || 'all',
     level: searchParams?.get('level') || 'all',
     price: searchParams?.get('price') || 'all',
     department: searchParams?.get('department') || 'all',
@@ -237,20 +236,7 @@ const CourseCatalog = () => {
             </div>
           </div>
 
-          <Select
-            value={filters.category}
-            onValueChange={(value) => handleFilterChange('category', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="medical">Medical</SelectItem>
-              <SelectItem value="dental">Dental</SelectItem>
-              <SelectItem value="nursing">Nursing</SelectItem>
-            </SelectContent>
-          </Select>
+       
 
           <Select
             value={filters.sort}
