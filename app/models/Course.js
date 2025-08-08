@@ -107,11 +107,6 @@ const courseSchema = new mongoose.Schema({
     enum: ['Beginner', 'Intermediate', 'Advanced'],
     required: true
   },
-  category: {
-    type: String,
-    required: true,
-    enum: ['Medical', 'Dental', 'Nursing']
-  },
   subcategory: String,
   tags: [String],
   language: {
@@ -175,7 +170,6 @@ const courseSchema = new mongoose.Schema({
 
 // Indexes for efficient querying
 courseSchema.index({ title: 'text', description: 'text' });
-courseSchema.index({ category: 1, status: 1 });
 courseSchema.index({ teacherId: 1, status: 1 });
 courseSchema.index({ slug: 1 });
 courseSchema.index({ status: 1, featured: 1 });
