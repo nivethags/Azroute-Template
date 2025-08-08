@@ -16,12 +16,11 @@ export async function POST(request) {
       username, 
       email, 
       password, 
-      preferredContactNumber,
-      subjectsOfInterest
+      preferredContactNumber
     } = await request.json();
 
     // Input validation
-    if (!firstName || !lastName || !username || !email || !password || !preferredContactNumber || !subjectsOfInterest) {
+    if (!firstName || !lastName || !username || !email || !password || !preferredContactNumber ) {
       return Response.json(
         { message: "All required fields must be filled" },
         { status: 400 }
@@ -71,13 +70,7 @@ export async function POST(request) {
       );
     }
 
-    // Validate subjects
-    if (!Array.isArray(subjectsOfInterest) || subjectsOfInterest.length === 0 || subjectsOfInterest.length > 3) {
-      return Response.json(
-        { message: "Please select between 1 and 3 subjects" },
-        { status: 400 }
-      );
-    }
+ 
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -92,7 +85,6 @@ export async function POST(request) {
       email: email.toLowerCase().trim(),
       password,
       preferredContactNumber: preferredContactNumber.trim(),
-      subjectsOfInterest,
       verificationToken,
       verificationTokenExpires,
       verified: false

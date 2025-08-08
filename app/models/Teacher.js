@@ -46,10 +46,6 @@ const TeacherSchema = new mongoose.Schema({
     required: [true, 'Phone number is required'],
     trim: true
   },
-  department: {
-    type: String,
-    trim: true
-  },
   qualification: {
     type: String,
     required: [true, 'Qualification is required'],
@@ -59,16 +55,6 @@ const TeacherSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Teaching experience is required'],
     trim: true
-  },
-  subjectsToTeach: {
-    type: [String],
-    required: [true, 'Please select at least one subject to teach'],
-    validate: {
-      validator: function(v) {
-        return v.length > 0 && v.length <= 3;
-      },
-      message: 'Please select between 1 and 3 subjects to teach'
-    }
   },
   bio: String,
   courses: [{
