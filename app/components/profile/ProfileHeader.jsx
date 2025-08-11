@@ -1,9 +1,13 @@
-// components/profile/ProfileHeader.jsx
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Camera, Mail, MapPin, Link as LinkIcon } from "lucide-react";
 
-export function ProfileHeader({ user, isEditable }) {
+export default function ProfileHeader({ user, isEditable }) {
+  const router = useRouter();
+
   return (
     <div className="relative">
       {/* Cover Image */}
@@ -45,7 +49,10 @@ export function ProfileHeader({ user, isEditable }) {
             </div>
             {isEditable ? (
               <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                <Button>Edit Profile</Button>
+                {/* Redirect to edit profile */}
+                <Button onClick={() => router.push("/dashboard/teacher/profile/edit")}>
+                  Edit Profile
+                </Button>
                 <Button variant="outline">View Public Profile</Button>
               </div>
             ) : (
@@ -73,7 +80,7 @@ export function ProfileHeader({ user, isEditable }) {
             <div className="flex items-center">
               <LinkIcon className="h-4 w-4 mr-2" />
               <a href={user.website} className="text-primary hover:underline">
-                {user.website.replace(/^https?:\/\//, '')}
+                {user.website.replace(/^https?:\/\//, "")}
               </a>
             </div>
           )}
