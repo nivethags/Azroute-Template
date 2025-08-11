@@ -1,10 +1,8 @@
-// app/dashboard/teacher/courses/page.jsx
+"use client";
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -47,8 +45,68 @@ import {
   Book,
   FileText,
   Settings,
-  AlertTriangle
 } from "lucide-react";
+
+// --- Mock fallback data ---
+const mockCourses = [
+  {
+    _id: "1",
+    title: "Beginner Chess Fundamentals",
+    description: "Learn the basics of chess, including piece movement and opening principles.",
+    category: "Chess",
+    level: "Beginner",
+    thumbnail: "https://via.placeholder.com/400x225?text=Beginner+Chess",
+    price: 49.99,
+    enrolledStudents: 120,
+    totalDuration: 180,
+    rating: 4.8,
+    status: "published",
+     students: [
+      {
+        _id: "s1",
+        name: "John Doe",
+        email: "john@example.com",
+        enrolledAt: "2025-07-01",
+        progress: 75,
+        lastActive: "2025-08-01"
+      },
+      {
+        _id: "s2",
+        name: "Jane Smith",
+        email: "jane@example.com",
+        enrolledAt: "2025-07-05",
+        progress: 40,
+        lastActive: "2025-08-02"
+      }
+    ]
+  },
+  {
+    _id: "2",
+    title: "Intermediate Chess Tactics",
+    description: "Sharpen your skills with tactics like forks, pins, and skewers.",
+    category: "Chess",
+    level: "Intermediate",
+    thumbnail: "https://via.placeholder.com/400x225?text=Intermediate+Tactics",
+    price: 79.99,
+    enrolledStudents: 85,
+    totalDuration: 240,
+    rating: 4.6,
+    status: "draft",
+  },
+  {
+    _id: "3",
+    title: "Mastering Endgames",
+    description: "Learn to convert your advantage in the endgame and dominate with precision.",
+    category: "Chess",
+    level: "Advanced",
+    thumbnail: "https://via.placeholder.com/400x225?text=Endgames",
+    price: 99.99,
+    enrolledStudents: 45,
+    totalDuration: 200,
+    rating: 4.9,
+    status: "published",
+  }
+];
 
 function CourseCard({ course, onDelete, onStatusChange }) {
   const { toast } = useToast();
@@ -60,16 +118,12 @@ function CourseCard({ course, onDelete, onStatusChange }) {
     try {
       setDeleting(true);
       const response = await fetch(`/api/teacher/courses/${course._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete course');
-      }
-
+      if (!response.ok) throw new Error("Failed to delete course");
       onDelete(course._id);
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error("Error deleting course:", error);
     } finally {
       setDeleting(false);
     }
@@ -78,31 +132,21 @@ function CourseCard({ course, onDelete, onStatusChange }) {
   const handleStatusChange = async (newStatus) => {
     try {
       setStatusUpdating(true);
-      const response = await fetch('/api/teacher/courses', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const response = await fetch("/api/teacher/courses", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ courseId: course._id, status: newStatus }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update course status');
-      }
+      if (!response.ok) throw new Error("Failed to update course status");
 
       toast({
-        title: 'Success',
-        description: `Course ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`,
+        title: "Success",
+        description: `Course ${newStatus === "published" ? "published" : "unpublished"} successfully`,
       });
-
       onStatusChange(course._id, newStatus);
     } catch (error) {
-      console.error('Error updating course status:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      console.error("Error updating course status:", error);
     } finally {
       setStatusUpdating(false);
     }
@@ -114,15 +158,13 @@ function CourseCard({ course, onDelete, onStatusChange }) {
         <div className="flex items-start justify-between">
           <div className="flex space-x-4">
             <img
-              src={course.thumbnail || '/placeholder-course.jpg'}
+              src={course.thumbnail || "/placeholder-course.jpg"}
               alt={course.title}
               className="h-24 w-24 rounded-lg object-cover"
             />
             <div>
               <h3 className="font-semibold text-lg mb-1">{course.title}</h3>
-              <p className="text-muted-foreground text-sm mb-2 line-clamp-2">
-                {course.description}
-              </p>
+              <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{course.description}</p>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
@@ -134,11 +176,11 @@ function CourseCard({ course, onDelete, onStatusChange }) {
                 </div>
                 <Badge
                   variant={
-                    course.status === 'published' 
-                      ? 'success' 
-                      : course.status === 'draft' 
-                      ? 'secondary' 
-                      : 'destructive'
+                    course.status === "published"
+                      ? "success"
+                      : course.status === "draft"
+                      ? "secondary"
+                      : "destructive"
                   }
                 >
                   {course.status}
@@ -146,7 +188,6 @@ function CourseCard({ course, onDelete, onStatusChange }) {
               </div>
             </div>
           </div>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -154,59 +195,33 @@ function CourseCard({ course, onDelete, onStatusChange }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/teacher/courses/${course._id}`)}
-              >
+              <DropdownMenuItem onClick={() => router.push(`/dashboard/teacher/courses/${course._id}`)}>
                 <Eye className="h-4 w-4 mr-2" />
                 View Details
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/teacher/courses/${course._id}/edit`)}
-              >
+              <DropdownMenuItem onClick={() => router.push(`/dashboard/teacher/courses/${course._id}/edit`)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Course
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/teacher/courses/${course._id}/content`)}
+                onClick={() => handleStatusChange(course.status === "published" ? "draft" : "published")}
+                disabled={statusUpdating}
               >
-                <FileText className="h-4 w-4 mr-2" />
-                Manage Content
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/teacher/courses/${course._id}/analytics`)}
-              >
-                <BarChart2 className="h-4 w-4 mr-2" />
-                Analytics
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/teacher/courses/${course._id}/settings`)}
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
+                {course.status === "published" ? (
+                  <>
+                    <Eye className="h-4 w-4 mr-2" /> Unpublish
+                  </>
+                ) : (
+                  <>
+                    <Globe className="h-4 w-4 mr-2" /> Publish
+                  </>
+                )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {course.status === 'published' ? (
-                <DropdownMenuItem 
-                  onClick={() => handleStatusChange('draft',course._id)}
-                  disabled={statusUpdating}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Unpublish
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  onClick={() => handleStatusChange('published',course._id)}
-                  disabled={statusUpdating}
-                >
-                  <Globe className="h-4 w-4 mr-2" />
-                  Publish
-                </DropdownMenuItem>
-              )}
               <Dialog>
                 <DialogTrigger asChild>
                   <DropdownMenuItem className="text-red-600">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
+                    <Trash2 className="h-4 w-4 mr-2" /> Delete
                   </DropdownMenuItem>
                 </DialogTrigger>
                 <DialogContent>
@@ -217,15 +232,9 @@ function CourseCard({ course, onDelete, onStatusChange }) {
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => {}}>
-                      Cancel
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      onClick={handleDelete}
-                      disabled={deleting}
-                    >
-                      {deleting ? 'Deleting...' : 'Delete Course'}
+                    <Button variant="outline">Cancel</Button>
+                    <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                      {deleting ? "Deleting..." : "Delete Course"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -243,9 +252,9 @@ export default function TeacherCourses() {
   const { toast } = useToast();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
 
   useEffect(() => {
     fetchCourses();
@@ -257,21 +266,24 @@ export default function TeacherCourses() {
       const params = new URLSearchParams({
         search: searchQuery,
         status: statusFilter,
-        sort: sortOrder
+        sort: sortOrder,
       });
-
       const response = await fetch(`/api/teacher/courses?${params}`);
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.message);
 
-      setCourses(data.courses);
+      if (data?.courses?.length > 0) {
+        setCourses(data.courses);
+      } else {
+        setCourses(mockCourses); // fallback when API returns empty
+      }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error("Error fetching courses:", error);
+      setCourses(mockCourses); // fallback on error
       toast({
         title: "Error",
-        description: "Failed to fetch courses",
-        variant: "destructive"
+        description: "Failed to fetch courses, showing sample data",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -279,7 +291,7 @@ export default function TeacherCourses() {
   };
 
   const handleDelete = (courseId) => {
-    setCourses(prev => prev.filter(course => course._id !== courseId));
+    setCourses((prev) => prev.filter((course) => course._id !== courseId));
     toast({
       title: "Success",
       description: "Course deleted successfully",
@@ -287,14 +299,14 @@ export default function TeacherCourses() {
   };
 
   const handleStatusChange = (courseId, newStatus) => {
-    setCourses(prev => prev.map(course => 
-      course._id === courseId 
-        ? { ...course, status: newStatus }
-        : course
-    ));
+    setCourses((prev) =>
+      prev.map((course) =>
+        course._id === courseId ? { ...course, status: newStatus } : course
+      )
+    );
     toast({
       title: "Success",
-      description: `Course ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`,
+      description: `Course ${newStatus === "published" ? "published" : "unpublished"} successfully`,
     });
   };
 
@@ -303,16 +315,14 @@ export default function TeacherCourses() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">My Courses</h1>
-          <p className="text-muted-foreground">
-            Manage and monitor your courses
-          </p>
+          <p className="text-muted-foreground">Manage and monitor your courses</p>
         </div>
-        <Button onClick={() => router.push('/dashboard/teacher/courses/create')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Course
+        <Button onClick={() => router.push("/dashboard/teacher/courses/create")}>
+          <Plus className="h-4 w-4 mr-2" /> Create Course
         </Button>
       </div>
 
+      {/* Filters */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -323,10 +333,7 @@ export default function TeacherCourses() {
             className="pl-9"
           />
         </div>
-        <Select
-          value={statusFilter}
-          onValueChange={setStatusFilter}
-        >
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -337,10 +344,7 @@ export default function TeacherCourses() {
             <SelectItem value="archived">Archived</SelectItem>
           </SelectContent>
         </Select>
-        <Select
-          value={sortOrder}
-          onValueChange={setSortOrder}
-        >
+        <Select value={sortOrder} onValueChange={setSortOrder}>
           <SelectTrigger>
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -353,25 +357,28 @@ export default function TeacherCourses() {
         </Select>
       </div>
 
+      {/* Course List */}
       <div className="space-y-4">
         {loading ? (
-          Array(3).fill(null).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="flex space-x-4">
-                  <Skeleton className="h-24 w-24 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <div className="flex space-x-4">
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-4 w-20" />
+          Array(3)
+            .fill(null)
+            .map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="flex space-x-4">
+                    <Skeleton className="h-24 w-24 rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <div className="flex space-x-4">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            ))
         ) : courses.length > 0 ? (
           courses.map((course) => (
             <CourseCard
@@ -389,11 +396,8 @@ export default function TeacherCourses() {
               <p className="text-muted-foreground mb-4">
                 Get started by creating your first course
               </p>
-              <Button 
-                onClick={() => router.push('/dashboard/teacher/courses/create')}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Course
+              <Button onClick={() => router.push("/dashboard/teacher/courses/create")}>
+                <Plus className="h-4 w-4 mr-2" /> Create Course
               </Button>
             </CardContent>
           </Card>

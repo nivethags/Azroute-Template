@@ -170,23 +170,6 @@ function BasicInfoForm({ data, onChange }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Category</Label>
-          <Select
-            value={data.category || ''}
-            onValueChange={(value) => onChange('category', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Entry">Entry</SelectItem>
-              <SelectItem value="Midd">Midd</SelectItem>
-              <SelectItem value="Advance">Advance</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
           <Label>Level</Label>
           <Select
             value={data.level || ''}
@@ -262,64 +245,7 @@ function BasicInfoForm({ data, onChange }) {
           </div>
         </div>
       </div>
-      <div className="space-y-2">
-        <Label>Course Introduction Video (Optional)</Label>
-        <div className="flex items-center space-x-4">
-          {data.introVideo ? (
-            <div className="relative w-40 h-24">
-              <video
-                src={data.introVideo}
-                className="w-full h-full object-cover rounded-lg"
-                controls
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute -top-2 -right-2"
-                onClick={() => onChange('introVideo', '')}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="w-40 h-24 bg-muted flex items-center justify-center rounded-lg">
-              <Video className="h-6 w-6 text-muted-foreground" />
-            </div>
-          )}
-          <div>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={uploading}
-                onClick={() => document.getElementById('video-upload').click()}
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Video
-                  </>
-                )}
-              </Button>
-              <input
-                type="file"
-                id="video-upload"
-                accept="video/*"
-                onChange={(e) => handleVideoUpload(e.target.files[0])}
-                className="hidden"
-              />
-              <p className="text-sm text-muted-foreground">
-                Maximum duration: 5 minutes
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+     
     </div>
   );
 }
@@ -1007,18 +933,9 @@ function ReviewForm({ data, onPublish, publishing }) {
       {/* Publish Options */}
       <Card>
           <CardHeader>
-            <CardTitle>Publish Options</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
-              <div>
-                <p className="font-medium">Course Review</p>
-                <p className="text-sm text-muted-foreground">
-                  Your course will be reviewed by our team before being published. This usually takes 1-2 business days.
-                </p>
-              </div>
-            </div>
+           
 
             <Button
               onClick={handlePublish}

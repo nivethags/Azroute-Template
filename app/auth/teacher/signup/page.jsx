@@ -35,8 +35,6 @@ const INITIAL_FORM_STATE = {
   password: '',
   confirmPassword: '',
   phoneNumber: '',
-  department: '',
-  subjects: Array(3).fill({ type: '', customValue: '' }),
   qualification: '',
   experience: ''
 };
@@ -115,20 +113,6 @@ export default function TeacherSignup() {
     if (!formData.phoneNumber.trim()) return 'Phone number is required';
     if (!formData.qualification.trim()) return 'Qualification is required';
     if (!formData.experience.trim()) return 'Experience is required';
-
-    const validSubjects = formData.subjects.filter(subject => 
-      (subject.type !== 'Other' && subject.type !== '') || 
-      (subject.type === 'Other' && subject.customValue.trim() !== '')
-    );
-
-    if (validSubjects.length === 0) return 'Please select at least one subject to teach';
-
-    const invalidCustomSubject = formData.subjects.some(subject => 
-      subject.type === 'Other' && subject.customValue.trim() === ''
-    );
-
-    if (invalidCustomSubject) return 'Please enter a value for custom subjects';
-
     return '';
   };
 
@@ -146,10 +130,7 @@ export default function TeacherSignup() {
     setSuccess('');
 
     try {
-      const processedSubjects = formData.subjects
-        .filter(subject => subject.type !== '')
-        .map(subject => subject.type === 'Other' ? subject.customValue.trim() : subject.type);
-
+     
       const response = await fetch('/api/auth/teacher/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -160,8 +141,6 @@ export default function TeacherSignup() {
           email: formData.email.trim().toLowerCase(),
           password: formData.password,
           phoneNumber: formData.phoneNumber.trim(),
-          department: formData.department.trim(),
-          subjectsToTeach: processedSubjects,
           qualification: formData.qualification.trim(),
           experience: formData.experience.trim()
         })
@@ -316,15 +295,7 @@ export default function TeacherSignup() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  name="department"
-                  value={formData.department}
-                  onChange={(e) => handleChange('department', e.target.value)}
-                  placeholder="Your department (optional)"
-                />
-              </div>
+             
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -355,48 +326,7 @@ export default function TeacherSignup() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <Label>Subjects to Teach <span className="text-red-500">*</span></Label>
-              <p className="text-sm text-gray-500">Select up to three subjects you want to teach</p>
-              
-              {[0, 1, 2].map((index) => (
-                <div key={index} className="space-y-2">
-                  <Select
-                    value={formData.subjects[index].type}
-                    onValueChange={(value) => handleSubjectChange(index, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={`Select Subject ${index + 1}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PRESET_SUBJECTS.map((subject) => (
-                        <SelectItem
-                          key={subject}
-                          value={subject}
-                          disabled={
-                            subject !== 'Other' && 
-                            formData.subjects.some(s => s.type === subject) && 
-                            formData.subjects[index].type !== subject
-                          }
-                        >
-                          {subject}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {formData.subjects[index].type === 'Other' && (
-                    <Input
-                      placeholder="Enter your subject"
-                      value={formData.subjects[index].customValue}
-                      onChange={(e) => handleCustomSubjectChange(index, e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-
+       
             <Button
               type="submit"
               className="w-full"

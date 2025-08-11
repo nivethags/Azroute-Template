@@ -1,12 +1,11 @@
-"use client"
+"use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2, Book, Users, Calendar, TrendingUp,
-  Clock, DollarSign, BarChart2, Upload, MessageSquare,
-  Video
+  Loader2, Book, Users, Calendar, DollarSign,
+  Upload, MessageSquare
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,43 +23,55 @@ export default function TeacherDashboard() {
     totalStudents: 0,
     activeCourses: 0,
     upcomingClasses: 0,
-    totalEarnings: 0,
-    courseCompletionRate: 0,
-    totalAssignments: 0
+    totalEarnings: 0
   });
 
+  const [recentClasses, setRecentClasses] = useState([]);
+
   useEffect(() => {
-    const fetchTeacherData = async () => {
+    const loadStaticData = async () => {
       try {
-        const [profileRes, statsRes] = await Promise.all([
-          fetch('/api/teacher/profile'),
-          fetch('/api/teacher/stats')
-        ]);
-
-        if (!profileRes.ok) {
-          if (profileRes.status === 401) {
-            router.push('/auth/teacher/login');
-            return;
+        // Static profile and stats data
+        const profileData = { teacher: { name: "John Doe" } };
+        const statsData = {
+          totalStudents: 120,
+          activeCourses: 5,
+          upcomingClasses: 3,
+          totalEarnings: 4500
+        };
+        const recentClassesData = [
+          {
+            id: '1',
+            title: 'Opening Principles in Chess',
+            date: '2025-08-04',
+            time: '10:00 AM'
+          },
+          {
+            id: '2',
+            title: 'Tactics & Strategy',
+            date: '2025-08-03',
+            time: '2:30 PM'
+          },
+          {
+            id: '3',
+            title: 'Endgame Basics',
+            date: '2025-08-01',
+            time: '4:00 PM'
           }
-          throw new Error('Failed to fetch profile data');
-        }
+        ];
 
-        const [profileData, statsData] = await Promise.all([
-          profileRes.json(),
-          statsRes.json()
-        ]);
-        
-        setTeacher(profileData?.teacher);
+        setTeacher(profileData.teacher);
         setStats(statsData);
+        setRecentClasses(recentClassesData);
       } catch (error) {
-        setError(error.message);
+        setError("Something went wrong while loading static data.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTeacherData();
-  }, [router]);
+    loadStaticData();
+  }, []);
 
   const handleUpload = (type) => {
     if (type === 'live') {
@@ -99,166 +110,132 @@ export default function TeacherDashboard() {
             Welcome back, {teacher?.name}
           </p>
         </div>
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Content
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleUpload('live')}>
-                Go Live
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleUpload('recorded')}>
-                Upload Course
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Content
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleUpload('live')}>
+              Go Live
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleUpload('recorded')}>
+              Upload Course
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Total Students</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              Enrolled across all courses
-            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Courses</CardTitle>
-            <Book className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Active Courses</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeCourses}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently published
-            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Total Earnings</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${stats.totalEarnings}</div>
-            <p className="text-xs text-muted-foreground">
-              Lifetime earnings
-            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Classes</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Upcoming Classes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.upcomingClasses}</div>
-            <p className="text-xs text-muted-foreground">
-              Next 7 days
-            </p>
           </CardContent>
         </Card>
-
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Course Completion</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.courseCompletionRate}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Average completion rate
-            </p>
-          </CardContent>
-        </Card> */}
-
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Assignments</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAssignments}</div>
-            <p className="text-xs text-muted-foreground">
-              Active assignments
-            </p>
-          </CardContent>
-        </Card> */}
       </div>
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Button 
-    variant="outline"
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/courses/create')}
-  >
-    <Book className="h-6 w-6" />
-    <span>Create Course</span>
-  </Button>
-  <Button 
-    variant="outline" 
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/assignments')}
-  >
-    <Clock className="h-6 w-6" />
-    <span>Create Assignment</span>
-  </Button>
-  
-  
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/courses/create')}
+        >
+          <Book className="h-6 w-6" />
+          <span>Create Course</span>
+        </Button>
+        <Button 
+          variant="outline" 
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/assignments')}
+        >
+          <Calendar className="h-6 w-6" />
+          <span>Create Assignment</span>
+        </Button>
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/discussions')}
+        >
+          <MessageSquare className="h-6 w-6" />
+          <span>Start Discussion</span>
+        </Button>
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/students')}
+        >
+          <Users className="h-6 w-6" />
+          <span>Manage Students</span>
+        </Button>
+      </div>
 
-  {/* <Button 
-    variant="outline"
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/livestreams/create')}
-  >
-    <Video className="h-6 w-6" />
-    <span>Start Live Session</span>
-  </Button> */}
-
-  <Button 
-    variant="outline"
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/discussions')}
-  >
-    <MessageSquare className="h-6 w-6" />
-    <span>Start Discussion</span>
-  </Button>
-
-  {/* <Button 
-    variant="outline"
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/analytics')}
-  >
-    <BarChart2 className="h-6 w-6" />
-    <span>View Analytics</span>
-  </Button> */}
-
-  <Button 
-    variant="outline"
-    className="h-24 flex flex-col items-center justify-center space-y-2"
-    onClick={() => router.push('/dashboard/teacher/students')}
-  >
-    <Users className="h-6 w-6" />
-    <span>Manage Students</span>
-  </Button>
-</div>
+      {/* Recent Classes Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Classes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentClasses.length > 0 ? (
+            <ul className="divide-y">
+              {recentClasses.map((cls) => (
+                <li key={cls.id} className="py-3 flex justify-between">
+                  <div>
+                    <p className="font-medium">{cls.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(cls.date).toLocaleDateString()} • {cls.time}
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => router.push(`/dashboard/teacher/courses/${cls.id}`)}
+                  >
+                    View
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No recent classes found.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

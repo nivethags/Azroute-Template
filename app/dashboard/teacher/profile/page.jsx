@@ -1,26 +1,31 @@
-// app/dashboard/teacher/profile/page.jsx
+'use client';
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
-
-const teacherData = {
-  id: 1,
-  name: "Dr. Sarah Johnson",
-  role: "teacher",
-  email: "sarah.j@connected.edu",
-  avatar: "/avatars/sarah.jpg",
-  initials: "SJ",
-  location: "New York, USA",
-  website: "https://sarahjohnson.edu",
-  bio: "Passionate educator with over 10 years of experience in web development and computer science. Dedicated to helping students master modern technologies.",
-  skills: ["Web Development", "React", "Node.js", "Python", "Database Design"],
-};
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 export default function TeacherProfilePage() {
+  const [teacher, setTeacher] = useState(null);
+
+  useEffect(() => {
+    axios.get('/api/teacher/profile')
+      .then(res => {
+        setTeacher(res.data);
+      })
+      .catch(err => {
+        console.error("Profile fetch error:", err);
+      });
+  }, []);
+
+  if (!teacher) {
+    return <div className="text-center mt-20">Loading profile...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <ProfileHeader user={teacherData} isEditable={true} />
+      <ProfileHeader user={teacher} isEditable={true} />
       <div className="py-8">
-        <ProfileTabs user={teacherData} isEditable={true} />
+        <ProfileTabs user={teacher} isEditable={true} />
       </div>
     </div>
   );

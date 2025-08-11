@@ -54,16 +54,6 @@ const StudentSchema = new mongoose.Schema({
     required: [true, 'Contact number is required'],
     trim: true
   },
-  subjectsOfInterest: {
-    type: [String],
-    required: [true, 'Please select at least one subject'],
-    validate: {
-      validator: function(v) {
-        return v.length > 0 && v.length <= 3;
-      },
-      message: 'Please select between 1 and 3 subjects'
-    }
-  },
   verified: {
     type: Boolean,
     default: false

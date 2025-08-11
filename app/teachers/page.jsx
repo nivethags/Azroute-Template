@@ -67,14 +67,7 @@ const TeachersPage = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="mt-2">
-                  <p className="text-gray-600">{teacher.qualification}</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Subjects: {teacher.subjectsToTeach.join(', ')}
-                  </p>
-                </div>
-              </CardContent>
+          
             </Card>
           </Link>
         ))}
