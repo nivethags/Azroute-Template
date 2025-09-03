@@ -6,16 +6,14 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   BookOpen,
+  BarChart3,
   Video,
-  User2,
-  Calendar,
-  Settings,
+  FileText,
   ChevronLeft,
   ChevronRight,
-  Loader2,
-  FileText,
-  MessageSquare,
-  Clock
+  BrainCircuit,
+  CalendarClock,
+  CreditCard
 } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -71,43 +69,49 @@ const Sidebar = () => {
       .toUpperCase();
   };
 
-  const menuItems = [
-    {
-      icon: LayoutDashboard,
-      label: 'Dashboard',
-      href: '/dashboard/student'
-    },
-    {
-      icon: BookOpen,
-      label: 'My Learning',
-      href: '/dashboard/student/courses'
-    },
-    // {
-    //   icon: FileText,
-    //   label: 'Assignments',
-    //   href: '/dashboard/student/assignments'
-    // },
-    {
-      icon: Calendar,
-      label: 'Events',
-      href: '/dashboard/student/events'
-    },
-    {
-      icon: Video,
-      label: 'Live Sessions',
-      href: '/dashboard/student/livestreams'
-    },
-    // {
-    //   icon: MessageSquare,
-    //   label: 'Discussions',
-    //   href: '/dashboard/student/discussions'
-    // },
-    // {
-    //   icon: Clock,
-    //   label: 'Schedule',
-    //   href: '/dashboard/student/schedule'
-    // }
-  ];
+ const menuItems = [
+  {
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    href: '/dashboard/student'
+  },
+  {
+    icon: BookOpen,
+    label: 'My Courses',
+    href: '/dashboard/student/courses'
+  },
+  {
+    icon: BarChart3,
+    label: 'Progress Tracker',
+    href: '/dashboard/student/progress'
+  },
+  {
+    icon: Video,
+    label: 'Free Demo Class',
+    href: '/dashboard/student/demo-class'
+  },
+  {
+    icon: FileText,
+    label: 'Assessment',
+    href: '/dashboard/student/assessment'
+  },
+  {
+    icon: CalendarClock, // ⏰ Schedule icon
+    label: 'Schedule',
+    href: '/dashboard/student/schedule'
+  },
+  {
+    icon: CreditCard, // 💳 Payment icon
+    label: 'Payment',
+    href: '/dashboard/student/Payment'
+  },
+  {
+    icon: BrainCircuit, // Choose the right icon based on your library
+    label: 'AI-Based Assessment',
+    href: '/dashboard/student/ai-assessment'
+  }
+];
+
 
   return (
     <div

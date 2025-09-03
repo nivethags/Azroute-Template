@@ -103,13 +103,18 @@ export default function StudentCoursesPage() {
   };
 
   const categories = [
-    'Dentistry',
-    'Medical',
-    'Nursing',
-    'Other'
-  ];
+  'Beginner Fundamentals',
+  'Tactics & Strategy',
+  'Openings',
+  'Endgames',
+  'Game Analysis',
+  'Tournament Training',
+  'Kids Chess',
+  'Other'
+];
 
-  const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
+const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
+
 
   const CourseCard = ({ course, isEnrolled = false }) => (
     <Card className="h-full">

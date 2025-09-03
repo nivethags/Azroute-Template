@@ -2,10 +2,10 @@
 
 export const metadata = {
   title: {
-    default: 'Authentication - ConnectEd',
-    template: '%s | ConnectEd',
+    default: 'Authentication - Azroute Chess Institute',
+    template: '%s | Azroute Chess Institute',
   },
-  description: 'Authentication pages for ConnectEd learning platform',
+  description: 'Authentication pages for Azroute Chess Institute',
 };
 
 import Link from "next/link";

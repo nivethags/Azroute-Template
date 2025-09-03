@@ -1,9 +1,8 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,25 +23,15 @@ import {
   Menu,
   ChevronDown,
   LogOut,
-  Settings,
   BookOpen,
   GraduationCap,
   PlusCircle,
-  Layout,
-  FileText,
-  MessageSquare,
-  BarChart,
-  Clock,
   Search,
-  Calendar,
   Globe,
+  MessageSquare,
+  Calendar,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -50,9 +39,7 @@ export function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
     checkAuth();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -60,42 +47,39 @@ export function Navbar() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/check', {
-        credentials: 'include'
-      });
+      const response = await fetch("/api/auth/check", { credentials: "include" });
       const data = await response.json();
-      const role = data.user?.role || 'student';
+      const role = data.user?.role || "student";
       if (response.ok) {
-        if (data.code === 'TOKEN_EXPIRED') {
-          await handleLogout(); 
+        if (data.code === "TOKEN_EXPIRED") {
+          await handleLogout();
           router.push(`/auth/${role}/login`);
         }
-        
         setUser(data.user);
       }
     } catch (error) {
-      console.error('Auth check error:', error);
+      console.error("Auth check error:", error);
     }
   };
 
   const handleLogout = async () => {
     try {
-      const role = user?.role || 'student';
+      const role = user?.role || "student";
       const response = await fetch(`/api/auth/${role}/logout`, {
-        method: 'POST',
-        credentials: 'include'
+        method: "POST",
+        credentials: "include",
       });
-
       if (response.ok) {
         setUser(null);
-        router.push('/');
+        router.push("/");
       } else {
-        throw new Error('Logout failed');
+        throw new Error("Logout failed");
       }
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
+
 
   const categories = [
     { name: "Dentistry", href: "/explore?category=dentistry" },
@@ -104,30 +88,37 @@ export function Navbar() {
   ];
 
   const getNavItems = () => {
-    if (user?.role === 'teacher') {
-      return [
-        { label: "My Courses", icon: BookOpen, href: "/dashboard/teacher/courses" },
-      ];
+    if (user?.role === "teacher") {
+      return [{ label: "My Courses", icon: BookOpen, href: "/dashboard/teacher/courses" }];
     }
-    return [
-      { label: "My Learning", icon: BookOpen, href: "/dashboard/student" },
-    ];
+    return [{ label: "My Learning", icon: BookOpen, href: "/dashboard/student" }];
   };
 
   const getUserFullName = () => {
-    if (!user) return '';
+    if (!user) return "";
     const { firstName, middleName, lastName } = user;
-    return [firstName, middleName, lastName].filter(Boolean).join(' ');
+    return [firstName, middleName, lastName].filter(Boolean).join(" ");
   };
 
   const getUserInitials = () => {
-    if (!user) return '';
+    if (!user) return "AZ";
     return [user.firstName, user.lastName]
       .filter(Boolean)
-      .map(name => name[0])
-      .join('')
+      .map((name) => name[0])
+      .join("")
       .toUpperCase();
   };
+
+  // Messages shown when clicking the bell
+  const notifications = [
+    { id: 1, icon: MessageSquare, text: "Welcome to Azroute! 🎉", href: "/dashboard" },
+    { id: 2, icon: Calendar, text: "Your next class starts at 6:00 PM.", href: "/calendar" },
+  ];
+
+  // Styling for avatar
+  const avatarRing =
+    user?.role === "student" ? "ring-blue-600 ring-offset-2" : "ring-gray-300 ring-offset-2";
+  const avatarFallbackBg = "text-white bg-[hsl(222.2,47.4%,11.2%)]";
 
   return (
     <header
@@ -137,27 +128,19 @@ export function Navbar() {
     >
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-       <Link href={user ? `/dashboard/${user.role}` : "/"} className="flex items-center space-x-2">
-  <img 
-    src="/Azroute.jpeg" 
-    alt="Azroute Logo" 
-    className="h-20 w-34 object-contain"
-  />
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-            
-          </span>
+        <Link href={user ? `/dashboard/${user.role}` : "/"} className="flex items-center space-x-2">
+          <img src="/Azroute.jpeg" alt="Azroute Logo" className="h-20 w-34 object-contain" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent" />
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
+          {/* Clickable "search bar" that routes to dashboard search */}
+        
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
-              >
-                {/* <span>Browse</span> */}
-                {/* <ChevronDown className="h-4 w-4 ml-1" /> */}
+              <Button variant="ghost" className="font-medium text-gray-700 hover:text-blue-600">
+                {/* minimal trigger per your layout */}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64">
@@ -178,71 +161,81 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button 
-            variant="ghost" 
-            asChild
-            className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
-          >
+          <Button variant="ghost" asChild className="font-medium text-gray-700 hover:text-blue-600">
             <Link href="/explore" className="flex items-center">
               <Globe className="h-4 w-4 mr-2" />
               Explore
             </Link>
           </Button>
 
-          <Button 
-            variant="ghost" 
-            asChild
-            className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
-          >
+          <Button variant="ghost" asChild className="font-medium text-gray-700 hover:text-blue-600">
             <Link href="/teachers" className="flex items-center">
               <GraduationCap className="h-4 w-4 mr-2" />
-              Our Teachers
+              Our Coaches
             </Link>
           </Button>
 
           {!user && (
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               asChild
               className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <Link href="/auth/teacher/login">Teach on Azroute</Link>
+              <Link href="/auth/teacher/login">Coach on Azroute</Link>
             </Button>
           )}
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-6">
-          {/* Search Button that redirects to explore page with search focused */}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-gray-600 hover:text-blue-600"
-            onClick={() => router.push('/explore?focus=search')}
-          >
-            <Search className="h-5 w-5" />
-          </Button>
+          {/* Mobile search icon → dashboard search or explore */}
+          
 
           {user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
-                  2
-                </span>
-              </Button>
-
+              {/* Bell icon WITHOUT numeric badge; opens a message dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="flex items-center space-x-2 hover:bg-gray-100/80"
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-700 hover:text-blue-600"
+                    aria-label="Notifications"
                   >
-                    <Avatar className="h-8 w-8 ring-2 ring-offset-2 ring-blue-500">
+                    <Bell className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-72">
+                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <div className="px-3 py-6 text-sm text-gray-500">No new notifications</div>
+                  ) : (
+                    notifications.map((n) => (
+                      <DropdownMenuItem key={n.id} asChild className="py-2">
+                        <Link href={n.href} className="flex items-center">
+                          <n.icon className="h-4 w-4 mr-3 text-gray-500" />
+                          {n.text}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Profile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2 hover:bg-gray-100/80"
+                    aria-label="User menu"
+                  >
+                    <Avatar className={`h-8 w-8 ring ${avatarRing}`}>
                       {user.profile?.avatar ? (
                         <AvatarImage src={user.profile.avatar} alt={getUserFullName()} />
                       ) : (
-                        <AvatarFallback className="bg-blue-500 text-white">
+                        <AvatarFallback className={avatarFallbackBg}>
                           {getUserInitials()}
                         </AvatarFallback>
                       )}
@@ -259,7 +252,7 @@ export function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {getNavItems().map((item) => (
-                    <DropdownMenuItem key={item.href} className="py-2">
+                    <DropdownMenuItem key={item.href} className="py-2" asChild>
                       <Link href={item.href} className="flex items-center w-full">
                         <item.icon className="h-4 w-4 mr-3 text-gray-500" />
                         {item.label}
@@ -267,10 +260,7 @@ export function Navbar() {
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    className="text-red-600 py-2" 
-                    onClick={handleLogout}
-                  >
+                  <DropdownMenuItem className="text-red-600 py-2" onClick={handleLogout}>
                     <LogOut className="h-4 w-4 mr-3" />
                     Log Out
                   </DropdownMenuItem>
@@ -279,16 +269,16 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Button 
+              <Button
                 variant="ghost"
                 className="font-medium text-gray-700 hover:text-blue-600"
-                onClick={() => router.push('/auth/student/login')}
+                onClick={() => router.push("/auth/student/login")}
               >
                 Log In
               </Button>
-              <Button 
+              <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium shadow-md hover:shadow-lg transition-all"
-                onClick={() => router.push('/auth/student/signup')}
+                onClick={() => router.push("/auth/student/signup")}
               >
                 Get Started
               </Button>
@@ -298,25 +288,25 @@ export function Navbar() {
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
               <SheetHeader className="pb-6">
                 <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                  ConnectEd
+                  Azroute
                 </SheetTitle>
               </SheetHeader>
               <div className="space-y-6">
                 {user ? (
                   <div className="space-y-6">
                     <div className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10 ring-2 ring-offset-2 ring-blue-500">
+                      <Avatar className={`h-10 w-10 ring ${avatarRing}`}>
                         {user.profile?.avatar ? (
                           <AvatarImage src={user.profile.avatar} alt={getUserFullName()} />
                         ) : (
-                          <AvatarFallback className="bg-blue-500 text-white">
+                          <AvatarFallback className={avatarFallbackBg}>
                             {getUserInitials()}
                           </AvatarFallback>
                         )}
@@ -327,11 +317,7 @@ export function Navbar() {
                       </div>
                     </div>
 
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start py-6"
-                      asChild
-                    >
+                    <Button variant="ghost" className="w-full justify-start py-6" asChild>
                       <Link href="/explore" className="flex items-center">
                         <Globe className="h-5 w-5 mr-3 text-gray-500" />
                         Explore
@@ -340,12 +326,7 @@ export function Navbar() {
 
                     <div className="space-y-1">
                       {getNavItems().map((item) => (
-                        <Button
-                          key={item.label}
-                          variant="ghost"
-                          className="w-full justify-start py-6"
-                          asChild
-                        >
+                        <Button key={item.label} variant="ghost" className="w-full justify-start py-6" asChild>
                           <Link href={item.href}>
                             <item.icon className="h-5 w-5 mr-3 text-gray-500" />
                             {item.label}
@@ -354,11 +335,7 @@ export function Navbar() {
                       ))}
                     </div>
                     <div className="border-t pt-6">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-red-600 py-6"
-                        onClick={handleLogout}
-                      >
+                      <Button variant="ghost" className="w-full justify-start text-red-600 py-6" onClick={handleLogout}>
                         <LogOut className="h-5 w-5 mr-3" />
                         Log Out
                       </Button>
@@ -373,26 +350,17 @@ export function Navbar() {
                       </Link>
                       <Link href="/teachers" className="flex items-center py-3 text-gray-700 hover:text-blue-600">
                         <GraduationCap className="h-5 w-5 mr-2" />
-                        Our Teachers
+                        Our Coaches
                       </Link>
                       <Link href="/auth/teacher/login" className="block py-3 text-gray-700 hover:text-blue-600">
-                        Teach on ConnectEd
+                        Coach on Azroute
                       </Link>
-                      
-                      
                     </div>
                     <div className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full py-6"
-                        onClick={() => router.push('/auth/student/login')}
-                      >
+                      <Button variant="outline" className="w-full py-6" onClick={() => router.push("/auth/student/login")}>
                         Log In
                       </Button>
-                      <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 py-6"
-                        onClick={() => router.push('/auth/student/signup')}
-                      >
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 py-6" onClick={() => router.push("/auth/student/signup")}>
                         Get Started
                       </Button>
                     </div>
@@ -404,4 +372,5 @@ export function Navbar() {
         </div>
       </nav>
     </header>
-  )};
+  );
+}
