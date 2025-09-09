@@ -1,5 +1,6 @@
 // app/api/student/events/registered/route.js
 import { NextResponse } from 'next/server';
+<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
@@ -9,6 +10,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+=======
+import { connectDB } from '@/lib/mongodb';
+import Event from '@/models/Event';
+import EventRegistration from '@/models/EventRegistration';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 export async function GET(req) {
   try {
     const cookieStore = await cookies();
@@ -22,6 +31,7 @@ export async function GET(req) {
     }
 
     const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
+<<<<<<< HEAD
     const studentId = decoded.userId;
 
     // Get all registrations for this student
@@ -73,6 +83,33 @@ export async function GET(req) {
         currentRegistrations: event?.current_registrations,
         registrationStatus: registration.status,
         ticketTier: registration.ticket_tier
+=======
+    await connectDB();
+
+    // Get registrations with event details
+    const registrations = await EventRegistration
+      .find({ studentId: decoded.userId })
+      .populate('eventId')
+      .sort({ registeredAt: -1 });
+
+    // Format the response
+    const events = registrations.map(registration => {
+      const event = registration.eventId;
+      return {
+        id: event?._id,
+        title: event?.title,
+        description: event?.description,
+        thumbnail: event?.thumbnail,
+        type: event?.location.type,
+        startDate: event?.startDate,
+        endDate: event?.endDate,
+        duration: Math.ceil((new Date(event?.endDate) - new Date(event?.startDate)) / (1000 * 60 * 60)),
+        category: event?.category,
+        location: event?.location,
+        currentRegistrations: event?.currentRegistrations,
+        registrationStatus: registration.status,
+        ticketTier: registration.ticketTier
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
       };
     });
 
@@ -85,3 +122,7 @@ export async function GET(req) {
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa

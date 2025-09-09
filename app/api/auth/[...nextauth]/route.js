@@ -1,7 +1,13 @@
 // app/api/auth/[...nextauth]/route.js
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+<<<<<<< HEAD
 import { supabase } from '@/lib/supabaseClient';
+=======
+import { connectDB } from '@/lib/mongodb';
+import Student from '@/models/Student';
+import Teacher from '@/models/Teacher';
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 import bcrypt from 'bcryptjs';
 
 export const authOptions = {
@@ -14,6 +20,7 @@ export const authOptions = {
         role: { label: "Role", type: "text" }
       },
       async authorize(credentials) {
+<<<<<<< HEAD
   if (!credentials?.email || !credentials?.password || !credentials?.role) {
     throw new Error('Missing fields');
   }
@@ -46,6 +53,38 @@ export const authOptions = {
   };
 }
 
+=======
+        if (!credentials?.email || !credentials?.password || !credentials?.role) {
+          throw new Error('Missing fields');
+        }
+
+        await connectDB();
+
+        const Model = credentials.role === 'student' ? Student : Teacher;
+        const user = await Model.findOne({ email: credentials.email });
+
+        if (!user) {
+          throw new Error('No user found with this email');
+        }
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordValid) {
+          throw new Error('Invalid password');
+        }
+
+        if (!user.verified) {
+          throw new Error('Please verify your email first');
+        }
+
+        return {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          role: credentials.role
+        };
+      }
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
     })
   ],
   pages: {
@@ -70,10 +109,18 @@ export const authOptions = {
   },
   session: {
     strategy: "jwt",
+<<<<<<< HEAD
     maxAge: 30 * 24 * 60 * 60, // 30 days
+=======
+    maxAge: 30 * 24 * 60 * 60, // 24 hours
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
+<<<<<<< HEAD
 export { handler as GET, handler as POST };
+=======
+export { handler as GET, handler as POST };
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa

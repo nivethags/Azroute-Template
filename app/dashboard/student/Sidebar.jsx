@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 "use client";
 
 import React, { useState } from 'react';
+=======
+"use client"
+
+import React, { useState, useEffect } from 'react';
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -16,6 +22,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
+<<<<<<< HEAD
 import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
@@ -39,10 +46,108 @@ const Sidebar = () => {
     return student.Student_name
       .split(' ')
       .map((n) => n[0])
+=======
+
+const Sidebar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch student data');
+        }
+
+        const data = await response.json();
+        if (data.user && data.user.role === 'student') {
+          setStudent({
+            name: getFullName(data.user),
+            email: data.user.email,
+            avatar: data.user.profile?.avatar,
+            initials: getInitials(data.user)
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudentData();
+  }, []);
+
+  const getFullName = (user) => {
+    if (!user) return '';
+    return [user.firstName, user.middleName, user.lastName]
+      .filter(Boolean)
+      .join(' ');
+  };
+
+  const getInitials = (user) => {
+    if (!user) return '';
+    return [user.firstName, user.lastName]
+      .filter(Boolean)
+      .map(name => name?.[0] || '')
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
       .join('')
       .toUpperCase();
   };
 
+<<<<<<< HEAD
+=======
+ const menuItems = [
+  {
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    href: '/dashboard/student'
+  },
+  {
+    icon: BookOpen,
+    label: 'My Courses',
+    href: '/dashboard/student/courses'
+  },
+  {
+    icon: BarChart3,
+    label: 'Progress Tracker',
+    href: '/dashboard/student/progress'
+  },
+  {
+    icon: Video,
+    label: 'Free Demo Class',
+    href: '/dashboard/student/demo-class'
+  },
+  {
+    icon: FileText,
+    label: 'Assessment',
+    href: '/dashboard/student/assessment'
+  },
+  {
+    icon: CalendarClock, // ⏰ Schedule icon
+    label: 'Schedule',
+    href: '/dashboard/student/schedule'
+  },
+  {
+    icon: CreditCard, // 💳 Payment icon
+    label: 'Payment',
+    href: '/dashboard/student/Payment'
+  },
+  {
+    icon: BrainCircuit, // Choose the right icon based on your library
+    label: 'AI-Based Assessment',
+    href: '/dashboard/student/ai-assessment'
+  }
+];
+
+
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
   return (
     <div
       className={`relative min-h-screen bg-white border-r shadow-sm transition-all duration-300 ease-in-out 
@@ -72,10 +177,21 @@ const Sidebar = () => {
                 <Link
                   href={item.href}
                   className={`flex items-center px-3 py-3 rounded-lg transition-colors
+<<<<<<< HEAD
                     ${isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
                   {!isCollapsed && <span className="ml-3">{item.label}</span>}
+=======
+                    ${isActive
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-100'}`}
+                >
+                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                  {!isCollapsed && (
+                    <span className="ml-3">{item.label}</span>
+                  )}
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
                 </Link>
               </li>
             );
@@ -89,6 +205,7 @@ const Sidebar = () => {
           href="/dashboard/student/profile"
           className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-gray-100"
         >
+<<<<<<< HEAD
           {student ? (
             <>
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
@@ -114,6 +231,9 @@ const Sidebar = () => {
               )}
             </>
           ) : (
+=======
+          {loading ? (
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
             <>
               <Skeleton className="w-8 h-8 rounded-full" />
               {!isCollapsed && (
@@ -123,6 +243,35 @@ const Sidebar = () => {
                 </div>
               )}
             </>
+<<<<<<< HEAD
+=======
+          ) : (
+            <>
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                {student?.avatar ? (
+                  <img 
+                    src={student.avatar} 
+                    alt={student.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-medium text-white">
+                    {student?.initials || ''}
+                  </span>
+                )}
+              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">
+                    {student?.name || 'Loading...'}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {student?.email || 'Loading...'}
+                  </p>
+                </div>
+              )}
+            </>
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
           )}
         </Link>
       </div>

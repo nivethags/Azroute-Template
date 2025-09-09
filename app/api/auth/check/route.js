@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+<<<<<<< HEAD
 import { supabase } from '@/lib/supabaseClient';
 
+=======
+import { connectDB } from '@/lib/mongodb';
+import Teacher from '@/models/Teacher';
+import Student from '@/models/Student';
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 
 export async function GET(request) {
   try {

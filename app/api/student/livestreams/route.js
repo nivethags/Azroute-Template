@@ -1,5 +1,6 @@
 // app/api/student/livestreams/route.js
 import { NextResponse } from 'next/server';
+<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
@@ -10,10 +11,20 @@ const supabase = createClient(
 );
 
 // Auth helper
+=======
+import { connectDB } from '@/lib/mongodb';
+import { LiveStream } from '@/models/LiveStream';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import Student from '@/models/Student';
+import Enrollment from '@/models/CourseEnrollment';
+
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 async function verifyAuth() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token');
 
+<<<<<<< HEAD
   if (!token) return null;
 
   try {
@@ -29,6 +40,22 @@ async function verifyAuth() {
 
     return {
       id: student.id,
+=======
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
+    const student = await Student.findById(decoded.userId).select('-password');
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student._id.toString(),
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
       name: student.name,
       email: student.email,
       role: 'student'
@@ -39,6 +66,7 @@ async function verifyAuth() {
   }
 }
 
+<<<<<<< HEAD
 // GET: fetch all active livestreams
 export async function GET(req) {
   try {
@@ -64,11 +92,53 @@ export async function GET(req) {
       .order('started_at', { ascending: false });
 
     if (lsErr) throw lsErr;
+=======
+// Get all active livestreams
+export async function GET(req) {
+  try {
+    const user = await verifyAuth();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+
+    // Get user's enrolled courses
+    const enrolledCourses = await Enrollment.find({
+      studentId: user.id
+    }).select('courseId');
+
+    const courseIds = enrolledCourses.map(e => e.courseId);
+
+    // Find active livestreams
+    const livestreams = await LiveStream.find({
+      $or: [
+        { courseId: { $in: courseIds } }, // Livestreams from enrolled courses
+        { courseId: null } // Public livestreams
+      ],
+      status: 'live'
+    })
+    .select('title description teacherId teacherName startedAt attendees')
+    .sort('-startedAt')
+    .lean();
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 
     return NextResponse.json(livestreams);
 
   } catch (error) {
     console.error('Error fetching livestreams:', error);
+<<<<<<< HEAD
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+=======
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
