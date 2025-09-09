@@ -1,17 +1,20 @@
-// context/AuthContext.jsx
-<<<<<<< HEAD
-import { createContext, useContext, useState, useEffect } from "react";
+'use client';
+
+import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient'; // your Supabase client
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // Fetch logged-in user from API
+  // Fetch student profile from your API
   const fetchStudent = async () => {
     try {
-      const res = await fetch("/api/student/profile", { credentials: "include" });
+      const res = await fetch('/api/student/profile', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setStudent(data);
@@ -26,7 +29,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchStudent();
+    // Supabase session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchStudent(); // fetch full student data from your API
+      } else {
+        setStudent(null);
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        fetchStudent();
+      } else {
+        setStudent(null);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return (
@@ -36,42 +61,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
-=======
-'use client';
-
-import { createContext, useContext, useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-
-const AuthContext = createContext();
-
-export function AuthProvider({ children }) {
-  const { data: session, status } = useSession();
-  const [user, setUser] = useState(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session?.user) {
-      setUser(session.user);
-    } else {
-      setUser(null);
-    }
-  }, [session]);
-
-  const value = {
-    user,
-    loading: status === 'loading',
-    isAuthenticated: status === 'authenticated',
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -79,4 +68,3 @@ export const useAuth = () => {
   }
   return context;
 };
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa

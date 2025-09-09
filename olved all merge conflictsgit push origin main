@@ -1,0 +1,79 @@
+[35m.env[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35m.env[m[36m:[m[32m2[m[36m:[m[1;31m=======[m
+[35m.env[m[36m:[m[32m5[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35m.env[m[36m:[m[32m14[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35m.env[m[36m:[m[32m20[m[36m:[m[1;31m=======[m
+[35m.env[m[36m:[m[32m22[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35m.env.local[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35m.env.local[m[36m:[m[32m3[m[36m:[m[1;31m=======[m
+[35m.env.local[m[36m:[m[32m5[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m4[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m6[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m10[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m23[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m56[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m87[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m112[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m114[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m116[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m122[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m124[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/[...nextauth]/route.js[m[36m:[m[32m126[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/check/route.js[m[36m:[m[32m4[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/check/route.js[m[36m:[m[32m7[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/check/route.js[m[36m:[m[32m11[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m3[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m7[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m13[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m52[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/student/login/route.js[m[36m:[m[32m122[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/auth/student/signup/route.js[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/auth/student/signup/route.js[m[36m:[m[32m50[m[36m:[m[1;31m=======[m
+[35mapp/api/auth/student/signup/route.js[m[36m:[m[32m181[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m2[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m15[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m25[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m30[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m52[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m75[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m80[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m108[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m142[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m150[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m162[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m176[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m191[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m193[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m195[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m201[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m232[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m273[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m286[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m289[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m297[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m304[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m314[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m322[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m327[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m345[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m361[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m368[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m370[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m372[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m378[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m407[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m495[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m506[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m508[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m515[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m520[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m521[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m523[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m534[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m537[m[36m:[m[1;31m=======[m
+[35mapp/api/student/certificates/route.js[m[36m:[m[32m551[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/courses/[courseId]/complete-lesson/route.js[m[36m:[m[32m2[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35mapp/api/student/courses/[courseId]/complete-lesson/route.js[m[36m:[m[32m39[m[36m:[m[1;31m=======[m
+[35mapp/api/student/courses/[courseId]/complete-lesson/route.js[m[36m:[m[32m72[m[36m:[m[1;31m>>>>>>>[m 7f49367b755124f43e41b029e14312711e8732aa
+[35mapp/api/student/courses/[courseId]/complete-lesson/route.js[m[36m:[

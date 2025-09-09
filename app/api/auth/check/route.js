@@ -1,14 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
-<<<<<<< HEAD
 import { supabase } from '@/lib/supabaseClient';
-
-=======
-import { connectDB } from '@/lib/mongodb';
-import Teacher from '@/models/Teacher';
-import Student from '@/models/Student';
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 
 export async function GET(request) {
   try {
@@ -24,25 +17,14 @@ export async function GET(request) {
 
     try {
       const decoded = jwt.verify(authToken.value, process.env.JWT_SECRET);
-      await connectDB();
 
-      let user;
-      if (decoded.role === 'teacher') {
-        user = await Teacher.findById(decoded.userId)
-          .select('-password -resetPasswordToken -resetPasswordExpires -verificationToken -verificationTokenExpires')
-          .lean();
-      } else if (decoded.role === 'student') {
-        user = await Student.findById(decoded.userId)
-          .select('-password -resetPasswordToken -resetPasswordExpires -verificationToken -verificationTokenExpires')
-          .lean();
-      } else {
-        return NextResponse.json(
-          { message: "Invalid user role" },
-          { status: 401 }
-        );
-      }
+      let { data: user, error } = await supabase
+        .from(decoded.role === 'teacher' ? 'teachers' : 'students')
+        .select('*')
+        .eq('id', decoded.userId)
+        .single();
 
-      if (!user) {
+      if (error || !user) {
         return NextResponse.json(
           { message: "User not found" },
           { status: 404 }
@@ -51,7 +33,7 @@ export async function GET(request) {
 
       // Transform the user object based on role
       const userResponse = {
-        id: user._id.toString(),
+        id: user.id,
         firstName: user.firstName,
         middleName: user.middleName,
         lastName: user.lastName,
@@ -84,22 +66,20 @@ export async function GET(request) {
 
     } catch (err) {
       console.error('Token verification error:', err);
-      
-      // Check specifically for token expiration
+
       if (err instanceof jwt.TokenExpiredError) {
-        // Clear the auth token cookie
-        const cookieStore =await cookies();
+        const cookieStore = await cookies();
         cookieStore.delete('auth-token');
-        
+
         return NextResponse.json(
           { 
             message: "Token expired",
-            code: "TOKEN_EXPIRED"  // Add a specific code for client-side handling
+            code: "TOKEN_EXPIRED"
           },
           { status: 401 }
         );
       }
-      
+
       return NextResponse.json(
         { message: "Invalid token" },
         { status: 401 }
