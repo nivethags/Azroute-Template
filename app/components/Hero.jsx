@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
   MessageSquarePlus,
   GraduationCap,
@@ -13,7 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-export function Hero() {
+export default function Hero() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 

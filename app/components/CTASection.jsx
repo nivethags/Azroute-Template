@@ -2,7 +2,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Button } from "./ui/button";
-export function CTASection() {
+export default function CTASection() {
   const router = useRouter();
     return (
       <section className="py-16 bg-primary text-white">

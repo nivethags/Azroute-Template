@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 
-export function TeacherCTA() {
+export default function TeacherCTA() {
   const router = useRouter();
 
   const benefits = [

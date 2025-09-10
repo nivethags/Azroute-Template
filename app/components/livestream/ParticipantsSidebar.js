@@ -1,22 +1,22 @@
 // components/livestream/ParticipantsSidebar.js
 import { useState } from 'react';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "../../components/ui/sheet";
 import {
   Search,
   Users,

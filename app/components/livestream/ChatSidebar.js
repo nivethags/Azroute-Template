@@ -1,21 +1,21 @@
 // components/livestream/ChatSidebar.js
 import { useState, useRef, useEffect } from 'react';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "../../components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+} from "../../components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
 import {
   MessageSquare,
   Send,
@@ -28,7 +28,7 @@ import {
   ThumbsUp
 } from "lucide-react";
 import { format } from 'date-fns';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "../../components/ui/use-toast";
 
 export function ChatSidebar({
   isOpen,

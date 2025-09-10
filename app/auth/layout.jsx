@@ -1,4 +1,4 @@
-// app/auth/layout.js
+// app/auth/layout.jsx
 
 export const metadata = {
   title: {
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+// import { Button } from "../components/ui/button";
 import { Navbar } from "../components/Navbar";
 
 export default function AuthLayout({ children }) {

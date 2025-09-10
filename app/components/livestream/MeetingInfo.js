@@ -1,14 +1,14 @@
 // components/livestream/MeetingInfo.js
 import { useState } from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { 
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
+} from "../../components/ui/sheet";
+import { Input } from "../../components/ui/input";
 import {
   Info,
   Copy,
@@ -17,7 +17,7 @@ import {
   Clock,
   Users
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "../../components/ui/use-toast";
 
 export function MeetingInfo({
   title,

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-export function FAQ() {
+export default function FAQ() {
   const [openQuestion, setOpenQuestion] = useState(null);
 
   const faqs = [

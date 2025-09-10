@@ -6,29 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Clock,
-  BookOpen,
-  Play,
-  CheckCircle,
-  AlertCircle,
-  FileText,
-  Users,
-  Star,
-  DollarSign,
-  Lock,
-  Video
-} from "lucide-react";
-import { use } from 'react';
+import { Clock, BookOpen, Play, CheckCircle, FileText, Users, Star, DollarSign, Lock, Video } from "lucide-react";
 import { loadStripe } from '@stripe/stripe-js';
 
 // Initialize Stripe
@@ -37,7 +19,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 export default function CourseDetailsPage({ params }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { courseId } =use(params)
+  const { courseId } = params; // ✅ Correct extraction
 
   const [course, setCourse] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
@@ -51,10 +33,19 @@ export default function CourseDetailsPage({ params }) {
         const response = await fetch(`/api/student/courses/${courseId}`);
         if (!response.ok) throw new Error('Failed to fetch course details');
         const data = await response.json();
-        setCourse(data.course);
-        setEnrollment(data.enrollment);
-      } catch (error) {
-        setError(error.message);
+
+        // Provide defaults to avoid undefined errors
+        const courseData = {
+          sections: [],
+          objectives: [],
+          prerequisites: 'No prerequisites required',
+          ...data.course,
+        };
+
+        setCourse(courseData);
+        setEnrollment(data.enrollment || null);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -68,31 +59,21 @@ export default function CourseDetailsPage({ params }) {
       setProcessingPurchase(true);
       const response = await fetch('/api/student/courses/purchase', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          courseId: course.id
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: course.id }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to process purchase');
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to process purchase');
       }
 
       const { sessionId } = await response.json();
-      
-      // Redirect to Stripe Checkout
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+      const stripe = await stripePromise;
       await stripe.redirectToCheckout({ sessionId });
 
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+    } catch (err) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setProcessingPurchase(false);
     }
@@ -102,23 +83,19 @@ export default function CourseDetailsPage({ params }) {
     router.push(`/dashboard/student/courses/${courseId}/learn/${lessonId}`);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="p-8">
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="p-8">
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    </div>
+  );
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -129,15 +106,15 @@ export default function CourseDetailsPage({ params }) {
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">
               <Clock className="h-3 w-3 mr-1" />
-              {Math.ceil(course.totalDuration / 60)} hours
+              {Math.ceil((course.totalDuration || 0) / 60)} hours
             </Badge>
             <Badge variant="secondary">
               <BookOpen className="h-3 w-3 mr-1" />
-              {course.totalLessons} lessons
+              {course.totalLessons || 0} lessons
             </Badge>
             <Badge variant="secondary">
               <Users className="h-3 w-3 mr-1" />
-              {course.enrollments} students
+              {course.enrollments || 0} students
             </Badge>
             {course.rating > 0 && (
               <Badge variant="secondary">
@@ -145,9 +122,7 @@ export default function CourseDetailsPage({ params }) {
                 {course.rating.toFixed(1)}
               </Badge>
             )}
-            <Badge>
-              {course.level}
-            </Badge>
+            <Badge>{course.level}</Badge>
           </div>
           <p className="text-muted-foreground">{course.description}</p>
         </div>
@@ -164,10 +139,7 @@ export default function CourseDetailsPage({ params }) {
                   </div>
                   <Progress value={enrollment.progress} className="h-2" />
                 </div>
-                <Button 
-                  className="w-full"
-                  onClick={() => startCourse(enrollment.lastAccessedLessonId)}
-                >
+                <Button className="w-full" onClick={() => startCourse(enrollment.lastAccessedLessonId)}>
                   {enrollment.progress === 0 ? (
                     <>
                       <Play className="h-4 w-4 mr-2" />
@@ -185,19 +157,11 @@ export default function CourseDetailsPage({ params }) {
               <div className="space-y-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold">
-                    ${course.price === 0 ? 'Free' : course.price}
+                    {Number(course.price) === 0 ? 'Free' : `₹${course.price}`}
                   </p>
-                  {course.price > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      One-time payment
-                    </p>
-                  )}
+                  {course.price > 0 && <p className="text-sm text-muted-foreground">One-time payment</p>}
                 </div>
-                <Button 
-                  className="w-full"
-                  onClick={handlePurchase}
-                  disabled={processingPurchase}
-                >
+                <Button className="w-full" onClick={handlePurchase} disabled={processingPurchase}>
                   {processingPurchase ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
                   ) : (
@@ -216,14 +180,8 @@ export default function CourseDetailsPage({ params }) {
       {/* Course Content */}
       <Tabs defaultValue="curriculum" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="curriculum">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Curriculum
-          </TabsTrigger>
-          <TabsTrigger value="overview">
-            <FileText className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
+          <TabsTrigger value="curriculum"><BookOpen className="h-4 w-4 mr-2" />Curriculum</TabsTrigger>
+          <TabsTrigger value="overview"><FileText className="h-4 w-4 mr-2" />Overview</TabsTrigger>
         </TabsList>
 
         <TabsContent value="curriculum">
@@ -231,50 +189,34 @@ export default function CourseDetailsPage({ params }) {
             <CardHeader>
               <CardTitle>Course Content</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {course.totalLessons} lessons • {Math.ceil(course.totalDuration / 60)} hours total
+                {course.totalLessons || 0} lessons • {Math.ceil((course.totalDuration || 0) / 60)} hours total
               </p>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
-                {course.sections.map((section, sectionIndex) => (
-                  <AccordionItem key={sectionIndex} value={`section-${sectionIndex}`}>
+                {course.sections.map((section, idx) => (
+                  <AccordionItem key={idx} value={`section-${idx}`}>
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-start">
                         <span className="font-medium">{section.title}</span>
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          {section.lessons.length} lessons
-                        </span>
+                        <span className="ml-2 text-sm text-muted-foreground">{section.lessons?.length || 0} lessons</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2">
-                        {section.lessons.map((lesson, lessonIndex) => {
-                          const isCompleted = enrollment?.lessonsProgress?.find(
-                            p => p.lessonId === lesson._id
-                          )?.completed;
-                          
+                        {section.lessons?.map((lesson, lidx) => {
+                          const isCompleted = enrollment?.lessonsProgress?.find(p => p.lessonId === lesson._id)?.completed;
                           return (
-                            <div
-                              key={lessonIndex}
-                              className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary/50"
-                            >
+                            <div key={lidx} className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary/50">
                               <div className="flex items-center space-x-2">
                                 {enrollment ? (
-                                  isCompleted ? (
-                                    <CheckCircle className="h-4 w-4 text-primary" />
-                                  ) : (
-                                    <Play className="h-4 w-4" />
-                                  )
-                                ) : (
-                                  <Lock className="h-4 w-4" />
-                                )}
+                                  isCompleted ? <CheckCircle className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4" />
+                                ) : <Lock className="h-4 w-4" />}
                                 <span>{lesson.title}</span>
                               </div>
-                              <span className="text-sm text-muted-foreground">
-                                {Math.ceil(lesson.duration / 60)} min
-                              </span>
+                              <span className="text-sm text-muted-foreground">{Math.ceil(lesson.duration / 60)} min</span>
                             </div>
-                          );
+                          )
                         })}
                       </div>
                     </AccordionContent>
@@ -290,18 +232,14 @@ export default function CourseDetailsPage({ params }) {
             <CardContent className="pt-6">
               <div className="prose prose-sm max-w-none">
                 <h3>Prerequisites</h3>
-                <p>{course.prerequisites || 'No prerequisites required'}</p>
+                <p>{course.prerequisites}</p>
 
                 <h3 className="mt-6">Learning Objectives</h3>
-                {course.objectives && course.objectives.length > 0 ? (
+                {course.objectives.length > 0 ? (
                   <ul>
-                    {course.objectives.map((objective, index) => (
-                      <li key={index}>{objective}</li>
-                    ))}
+                    {course.objectives.map((obj, i) => <li key={i}>{obj}</li>)}
                   </ul>
-                ) : (
-                  <p>No specific objectives listed</p>
-                )}
+                ) : <p>No specific objectives listed</p>}
               </div>
             </CardContent>
           </Card>

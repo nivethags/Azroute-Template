@@ -1,14 +1,14 @@
 // components/livestream/VideoTile.js
 import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, VideoOff, Pin, Volume2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '../../components/ui/badge';
 import { 
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger
-} from '@/components/ui/context-menu';
-import  VolumeSlider  from '@/components/ui/volume-slider';
+} from '../../components/ui/context-menu';
+import  VolumeSlider  from '../../components/ui/volume-slider';
 
 export function VideoTile({
   participant,

@@ -5,10 +5,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "../../components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Button } from "../../components/ui/button";
+import { Label } from "../../components/ui/label";
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -16,10 +16,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
+} from "../../components/ui/select";
+import { Switch } from "../../components/ui/switch";
+import { Slider } from "../../components/ui/slider";
+import { Badge } from "../../components/ui/badge";
 import {
   Mic,
   Video,

@@ -7,8 +7,8 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-  } from "@/components/ui/dialog";
-  import { Button } from "@/components/ui/button";
+  } from "../../components/ui/dialog";
+  import { Button } from "../../components/ui/button";
   import { PhoneOff, Users, Save } from "lucide-react";
   
   export function EndMeetingDialog({

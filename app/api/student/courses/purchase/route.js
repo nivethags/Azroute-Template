@@ -1,5 +1,4 @@
 // app/api/student/courses/purchase/route.js
-<<<<<<< HEAD
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -36,67 +35,18 @@ async function getUser() {
     };
   } catch (err) {
     console.error("Token verification error:", err);
-=======
-
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import Course from "@/models/Course";
-import CourseEnrollment from "@/models/CourseEnrollment";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import Stripe from 'stripe';
-import Student from "@/models/Student";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-async function getUser(request) {
-  const cookieStore =await cookies();
-  const token = cookieStore.get('auth-token');
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
-    const student = await Student.findById(decoded.userId).select('-password');
-    
-    if (!student) {
-      return null;
-    }
-
-    return {
-      id: student._id.toString(),
-      email: student.email,
-      name: student.name
-    };
-  } catch (error) {
-    console.error('Token verification error:', error);
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
     return null;
   }
 }
 
 export async function POST(request) {
   try {
-<<<<<<< HEAD
     const user = await getUser();
     if (!user) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-=======
-    const user = await getUser(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
 
     const body = await request.json();
     const { courseId, promoCode } = body;
 
-<<<<<<< HEAD
     // Get course
     const { data: course, error: courseErr } = await supabase
       .from("Courses")
@@ -121,38 +71,10 @@ export async function POST(request) {
     }
 
     // Calculate price after promo code
-=======
-    await connectDB();
-
-    // Check if already enrolled
-    const existingEnrollment = await CourseEnrollment.findOne({
-      studentId: user.id,
-      courseId: courseId
-    });
-
-    if (existingEnrollment) {
-      return NextResponse.json(
-        { error: 'Already enrolled in this course' },
-        { status: 400 }
-      );
-    }
-
-    // Get course details
-    const course = await Course.findById(courseId);
-    if (!course) {
-      return NextResponse.json(
-        { error: 'Course not found' },
-        { status: 404 }
-      );
-    }
-
-    // Calculate price after promo code (if applicable)
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
     let finalPrice = course.price;
     if (promoCode) {
       const discount = await validatePromoCode(promoCode, courseId);
       if (discount) {
-<<<<<<< HEAD
         finalPrice = course.price - (course.price * discount.percentage) / 100;
       }
     }
@@ -191,61 +113,17 @@ export async function POST(request) {
         {
           price_data: {
             currency: "gbp",
-=======
-        finalPrice = course.price - (course.price * discount.percentage / 100);
-      }
-    }
-
-    // If course is free, create enrollment directly
-    if (finalPrice === 0) {
-      const enrollment = new CourseEnrollment({
-        studentId: user.id,
-        courseId: course._id,
-        status: 'active',
-        paymentInfo: {
-          amount: 0,
-          status: 'completed',
-          completedAt: new Date()
-        }
-      });
-
-      await enrollment.save();
-
-      // Update course enrollment count
-      await Course.findByIdAndUpdate(courseId, {
-        $inc: { enrolledStudents: 1 }
-      });
-
-      return NextResponse.json({
-        message: 'Successfully enrolled in course',
-        enrollment
-      });
-    }
-
-    // Create Stripe checkout session for paid courses
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
             product_data: {
               name: course.title,
               description: course.description?.substring(0, 255),
               images: course.thumbnail ? [course.thumbnail] : undefined,
             },
-<<<<<<< HEAD
             unit_amount: Math.round(finalPrice * 100),
-=======
-            unit_amount: Math.round(finalPrice * 100), // Convert to pence
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
           },
           quantity: 1,
         },
       ],
       metadata: {
-<<<<<<< HEAD
         courseId: course.id,
         studentId: user.id,
         studentEmail: user.email,
@@ -254,16 +132,6 @@ export async function POST(request) {
       },
       customer_email: user.email,
       mode: "payment",
-=======
-        courseId: course._id.toString(),
-        studentId: user.id,
-        studentEmail: user.email,
-        studentName: user.name,
-        promoCode: promoCode || ''
-      },
-      customer_email: user.email,
-      mode: 'payment',
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${courseId}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${courseId}/checkout?canceled=true`,
     });
@@ -271,7 +139,6 @@ export async function POST(request) {
     return NextResponse.json({
       sessionId: session.id,
       course: {
-<<<<<<< HEAD
         id: course.id,
         title: course.title,
       },
@@ -300,38 +167,3 @@ async function validatePromoCode(code, courseId) {
     code: promoCode.code,
   };
 }
-=======
-        id: course._id,
-        title: course.title
-      }
-    });
-
-  } catch (error) {
-    console.error('Course purchase error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process purchase' },
-      { status: 500 }
-    );
-  }
-}
-
-async function validatePromoCode(code, courseId) {
-  // Add your promo code validation logic here
-  // This is just a placeholder implementation
-  const promoCode = await PromoCode.findOne({
-    code,
-    courseId,
-    status: 'active',
-    expiresAt: { $gt: new Date() }
-  });
-
-  if (!promoCode) {
-    return null;
-  }
-
-  return {
-    percentage: promoCode.discountPercentage,
-    code: promoCode.code
-  };
-}
->>>>>>> 7f49367b755124f43e41b029e14312711e8732aa

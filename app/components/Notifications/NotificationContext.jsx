@@ -1,31 +1,25 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
-const NotificationContext = createContext();
+const NotificationContext = createContext({ notify: () => {} });
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  const value = {
-    notifications,
-    unreadCount,
-    setNotifications,
-    setUnreadCount,
-  };
+  const api = useMemo(() => ({
+    notify: (msg) => {
+      // plug your toast library here if you want
+      // e.g. import { toast } from 'sonner'; toast(msg);
+      console.log('[Notification]', msg);
+    },
+  }), []);
 
   return (
-    <NotificationContext.Provider value={value}>
+    <NotificationContext.Provider value={api}>
       {children}
     </NotificationContext.Provider>
   );
 }
 
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
-};
+export function useNotification() {
+  return useContext(NotificationContext);
+}

@@ -1,7 +1,9 @@
 // components/ui/avatar.jsx
+"use client"
+
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";  // if you have @ alias configured
 
 const Avatar = React.forwardRef(({ className, ...props }, ref) => (
   <AvatarPrimitive.Root

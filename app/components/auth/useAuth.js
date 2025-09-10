@@ -1,7 +1,7 @@
 // components/auth/useAuth.js
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '../../components/ui/use-toast';
 
 export function useAuth(requiredRole = null) {
   const [user, setUser] = useState(null);

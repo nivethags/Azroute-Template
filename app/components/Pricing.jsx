@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function Pricing() {
+export default function Pricing() {
   const router = useRouter();
   const features = [
     "Community spaces",
