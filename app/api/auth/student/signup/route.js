@@ -1,0 +1,181 @@
+<<<<<<< HEAD
+// D:\Student_Coach\Azroute\app\api\auth\student\signup\route.js
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export async function POST(request) {
+  try {
+    const { name, email, password, mobile } = await request.json();
+
+    if (!name || !email || !password || !mobile) {
+      return new Response(JSON.stringify({ message: 'All required fields must be filled' }), { status: 400 });
+    }
+
+    // Check if email already exists
+    const { data: existing } = await supabase
+      .from('Students')
+      .select('Student_id')
+      .eq('email', email)
+      .single();
+
+    if (existing) {
+      return new Response(JSON.stringify({ message: 'Email already registered' }), { status: 400 });
+    }
+
+    // Insert new student (plain password)
+    const { data, error } = await supabase
+      .from('Students')
+      .insert({
+        Student_name: name,
+        email,
+        password,
+        mobile
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return new Response(JSON.stringify({ message: 'Account created successfully', student: data }), { status: 200 });
+
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ message: err.message || 'Internal server error' }), { status: 500 });
+  }
+}
+=======
+// app/api/auth/student/signup/route.js
+import { connectDB } from "@/lib/mongodb";
+import Student from "@/models/Student";
+import crypto from 'crypto';
+import { sendVerificationEmail } from '@/lib/email';
+
+const SPECIAL_CHARS = '!@#$%^&*(),.?{}';
+
+export async function POST(request) {
+  try {
+    await connectDB();
+    const { 
+      firstName, 
+      middleName, 
+      lastName, 
+      username, 
+      email, 
+      password, 
+      preferredContactNumber
+    } = await request.json();
+
+    // Input validation
+    if (!firstName || !lastName || !username || !email || !password || !preferredContactNumber ) {
+      return Response.json(
+        { message: "All required fields must be filled" },
+        { status: 400 }
+      );
+    }
+
+    // Validate username length
+    if (username.length < 4) {
+      return Response.json(
+        { message: "Username must be at least 4 characters long" },
+        { status: 400 }
+      );
+    }
+
+    // Validate password requirements
+    const passwordValidation = {
+      length: password.length >= 10,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      special: new RegExp(`[${SPECIAL_CHARS}]`).test(password)
+    };
+
+    if (!Object.values(passwordValidation).every(Boolean)) {
+      return Response.json(
+        { 
+          message: "Password must be at least 10 characters long and atleast one uppercase letter, one lowercase letter, and one special character" 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if username already exists
+    const existingUsername = await Student.findOne({ username });
+    if (existingUsername) {
+      return Response.json(
+        { message: "Username already taken" },
+        { status: 400 }
+      );
+    }
+
+    // Check if email already exists
+    const existingEmail = await Student.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return Response.json(
+        { message: "Email already registered" },
+        { status: 400 }
+      );
+    }
+
+ 
+
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Create new student
+    const student = new Student({
+      firstName: firstName.trim(),
+      middleName: middleName?.trim(),
+      lastName: lastName.trim(),
+      username: username.trim(),
+      email: email.toLowerCase().trim(),
+      password,
+      preferredContactNumber: preferredContactNumber.trim(),
+      verificationToken,
+      verificationTokenExpires,
+      verified: false
+    });
+
+    await student.save();
+
+    // Send verification email
+    await sendVerificationEmail({
+      email: student.email,
+      token: verificationToken,
+      name: `${student.firstName} ${student.lastName}`,
+      role: 'student'
+    });
+
+    return Response.json({
+      message: "Registration successful! Please check your email to verify your account."
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+
+    if (error.message === 'Failed to send verification email') {
+      return Response.json(
+        { message: "Account created but failed to send verification email. Please contact support." },
+        { status: 500 }
+      );
+    }
+
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return Response.json(
+        { message: validationErrors.join(', ') },
+        { status: 400 }
+      );
+    }
+
+    return Response.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+>>>>>>> 7f49367b755124f43e41b029e14312711e8732aa
