@@ -34,9 +34,7 @@ const INITIAL_FORM_STATE = {
   email: '',
   password: '',
   confirmPassword: '',
-  phoneNumber: '',
-  qualification: '',
-  experience: ''
+  phoneNumber: ''
 };
 
 export default function TeacherSignup() {
@@ -108,11 +106,8 @@ export default function TeacherSignup() {
     if (!formData.email.trim()) return 'Email is required';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email address';
     if (!formData.password) return 'Password is required';
-    if (!validatePassword(formData.password)) return 'Password does not meet requirements';
     if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
     if (!formData.phoneNumber.trim()) return 'Phone number is required';
-    if (!formData.qualification.trim()) return 'Qualification is required';
-    if (!formData.experience.trim()) return 'Experience is required';
     return '';
   };
 
@@ -141,8 +136,6 @@ export default function TeacherSignup() {
           email: formData.email.trim().toLowerCase(),
           password: formData.password,
           phoneNumber: formData.phoneNumber.trim(),
-          qualification: formData.qualification.trim(),
-          experience: formData.experience.trim()
         })
       });
 
@@ -244,24 +237,7 @@ export default function TeacherSignup() {
                   placeholder="Enter password"
                   required
                 />
-                <div className="mt-2 p-2 bg-gray-50 rounded-md">
-                  <p className="font-medium text-sm text-gray-700 mb-2">Password requirements:</p>
-                  <div className="space-y-1 text-sm">
-                    <div className={getPasswordStrength(formData.password).length ? 'text-green-600' : 'text-gray-600'}>
-                      {getPasswordStrength(formData.password).length ? '✓' : '○'} At least 10 characters
-                    </div>
-                    <div className={getPasswordStrength(formData.password).uppercase ? 'text-green-600' : 'text-gray-600'}>
-                      {getPasswordStrength(formData.password).uppercase ? '✓' : '○'} One uppercase letter
-                    </div>
-                    <div className={getPasswordStrength(formData.password).lowercase ? 'text-green-600' : 'text-gray-600'}>
-                      {getPasswordStrength(formData.password).lowercase ? '✓' : '○'} One lowercase letter
-                    </div>
-                    <div className={getPasswordStrength(formData.password).special ? 'text-green-600' : 'text-gray-600'}>
-                      {getPasswordStrength(formData.password).special ? '✓' : '○'} One special character 
-                      <span className="text-gray-500 ml-1">({SPECIAL_CHARS})</span>
-                    </div>
-                  </div>
-                </div>
+              
               </div>
 
               <div className="space-y-2">
@@ -298,34 +274,7 @@ export default function TeacherSignup() {
              
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="qualification">
-                  Qualification <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  name="qualification"
-                  value={formData.qualification}
-                  onChange={(e) => handleChange('qualification', e.target.value)}
-                  placeholder="Your highest qualification"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="experience">
-                  Teaching Experience <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  name="experience"
-                  value={formData.experience}
-                  onChange={(e) => handleChange('experience', e.target.value)}
-                  placeholder="Years of teaching experience"
-                  required
-                />
-              </div>
-            </div>
-
+            
        
             <Button
               type="submit"

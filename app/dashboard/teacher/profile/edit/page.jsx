@@ -1,142 +1,238 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from '@supabase/auth-helpers-react'; // Supabase session hook
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
+import { Loader2, Book, Users, Calendar, DollarSign, Upload, MessageSquare } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default function EditProfilePage() {
+export default function TeacherDashboard() {
   const router = useRouter();
-  const { toast } = useToast();
+  
+  // Supabase session hook
+  const { session, user, isLoading } = useSession(); // Use session hook
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    location: "",
-    website: "",
-    bio: "",
-    avatar: "",
+  const [teacher, setTeacher] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    activeCourses: 0,
+    upcomingClasses: 0,
+    totalEarnings: 0
   });
 
+  const [recentClasses, setRecentClasses] = useState([]);
+
   useEffect(() => {
-    // Temporary mock data - replace with API call
-    setFormData({
-      name: "John Doe",
-      email: "john@example.com",
-      location: "New York, USA",
-      website: "https://example.com",
-      bio: "Chess coach and enthusiast",
-      avatar: "https://via.placeholder.com/150",
-    });
+    const loadStaticData = async () => {
+      try {
+        // Static profile and stats data
+        const profileData = { teacher: { name: "John Doe" } };
+        const statsData = {
+          totalStudents: 120,
+          activeCourses: 5,
+          upcomingClasses: 3,
+          totalEarnings: 4500
+        };
+        const recentClassesData = [
+          {
+            id: '1',
+            title: 'Opening Principles in Chess',
+            date: '2025-08-04',
+            time: '10:00 AM'
+          },
+          {
+            id: '2',
+            title: 'Tactics & Strategy',
+            date: '2025-08-03',
+            time: '2:30 PM'
+          },
+          {
+            id: '3',
+            title: 'Endgame Basics',
+            date: '2025-08-01',
+            time: '4:00 PM'
+          }
+        ];
+
+        setTeacher(profileData.teacher);
+        setStats(statsData);
+        setRecentClasses(recentClassesData);
+      } catch (error) {
+        setError("Something went wrong while loading static data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStaticData();
   }, []);
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // Handling session state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  const handleSave = () => {
-    // Replace with API call to update user profile
-    console.log("Saving profile:", formData);
+  // Check if session or user is not available
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-red-500">Error: User not authenticated.</p>
+        <Button onClick={() => router.push('/auth/teacher/login')}>
+          Return to Login
+        </Button>
+      </div>
+    );
+  }
 
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
-
-    router.push("/dashboard/teacher/profile");
+  const handleUpload = (type) => {
+    if (type === 'live') {
+      router.push('/dashboard/teacher/livestreams');
+    } else {
+      router.push('/dashboard/teacher/courses/create');
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="space-y-8 p-8">
+      {/* Header Section */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-muted-foreground">
+            Welcome back, {user?.user_metadata?.full_name || 'Teacher'} {/* Displaying the user's name */}
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Content
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleUpload('live')}>
+              Go Live
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleUpload('recorded')}>
+              Upload Course
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Students</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalStudents}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Courses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeCourses}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Earnings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${stats.totalEarnings}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Classes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.upcomingClasses}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/courses/create')}
+        >
+          <Book className="h-6 w-6" />
+          <span>Create Course</span>
+        </Button>
+        <Button 
+          variant="outline" 
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/assignments')}
+        >
+          <Calendar className="h-6 w-6" />
+          <span>Create Assignment</span>
+        </Button>
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/discussions')}
+        >
+          <MessageSquare className="h-6 w-6" />
+          <span>Start Discussion</span>
+        </Button>
+        <Button 
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center space-y-2"
+          onClick={() => router.push('/dashboard/teacher/students')}
+        >
+          <Users className="h-6 w-6" />
+          <span>Manage Students</span>
+        </Button>
+      </div>
+
+      {/* Recent Classes Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Edit Profile</CardTitle>
+          <CardTitle>Recent Classes</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Avatar */}
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={formData.avatar} alt={formData.name} />
-              <AvatarFallback>{formData.name?.[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <Label htmlFor="avatar">Profile Picture URL</Label>
-              <Input
-                id="avatar"
-                value={formData.avatar}
-                onChange={(e) => handleChange("avatar", e.target.value)}
-                placeholder="Enter image URL"
-              />
-            </div>
-          </div>
-
-          {/* Name */}
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-          </div>
-
-          {/* Location */}
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => handleChange("location", e.target.value)}
-            />
-          </div>
-
-          {/* Website */}
-          <div>
-            <Label htmlFor="website">Website</Label>
-            <Input
-              id="website"
-              value={formData.website}
-              onChange={(e) => handleChange("website", e.target.value)}
-            />
-          </div>
-
-          {/* Bio */}
-          <div>
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              rows={3}
-              value={formData.bio}
-              onChange={(e) => handleChange("bio", e.target.value)}
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end space-x-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard/teacher/profile")}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>Save Changes</Button>
-          </div>
+        <CardContent>
+          {recentClasses.length > 0 ? (
+            <ul className="divide-y">
+              {recentClasses.map((cls) => (
+                <li key={cls.id} className="py-3 flex justify-between">
+                  <div>
+                    <p className="font-medium">{cls.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(cls.date).toLocaleDateString()} • {cls.time}
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => router.push(`/dashboard/teacher/courses/${cls.id}`)}
+                  >
+                    View
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No recent classes found.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

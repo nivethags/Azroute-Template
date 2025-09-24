@@ -31,29 +31,11 @@ const TeacherSchema = new mongoose.Schema({
     }
   },
   password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [10, 'Password must be at least 10 characters'],
-    validate: {
-      validator: function(v) {
-        return /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*(),.?{}]).{10,}$/.test(v);
-      },
-      message: 'Password must have 10+ characters, 2 numbers, 1 uppercase, 1 lowercase, and 1 special character'
-    }
+    type: String
   },
   phoneNumber: {
     type: String,
     required: [true, 'Phone number is required'],
-    trim: true
-  },
-  qualification: {
-    type: String,
-    required: [true, 'Qualification is required'],
-    trim: true
-  },
-  experience: {
-    type: String,
-    required: [true, 'Teaching experience is required'],
     trim: true
   },
   bio: String,
@@ -87,37 +69,27 @@ const TeacherSchema = new mongoose.Schema({
       type: Number,
       default: 0
     }
-  },
-  verified: {
-    type: Boolean,
-    default: false
-  },
-  verificationToken: String,
-  verificationTokenExpires: Date,
-  resetPasswordToken: String,
-  resetPasswordExpires: Date
-}, {
-  timestamps: true
+  }
 });
 
 // Hash password before saving
-TeacherSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// TeacherSchema.pre('save', async function(next) {
+//   if (!this.isModified('password')) {
+//     return next();
+//   }
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 // Method to compare passwords
-TeacherSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+// TeacherSchema.methods.comparePassword = async function(candidatePassword) {
+//   return bcrypt.compare(candidatePassword, this.password);
+// };
 
 TeacherSchema.methods.isResetTokenValid = function(token) {
   return this.resetPasswordToken === token && 
@@ -128,12 +100,6 @@ TeacherSchema.methods.isResetTokenValid = function(token) {
 TeacherSchema.set('toJSON', {
   transform: function(doc, ret, options) {
     delete ret.password;
-    delete ret.verificationToken;
-    delete ret.verificationTokenExpires;
-    delete ret.resetPasswordToken;
-    delete ret.resetPasswordExpires;
-    delete ret.__v;
-    return ret;
   }
 });
 

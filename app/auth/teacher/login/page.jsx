@@ -1,3 +1,4 @@
+// app/auth/teacher/login/page.jsx
 'use client';
 
 import { useState, useEffect, Suspense } from "react";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "../../../../app/context/AuthContext"; // 👈 added
 
 function ResendVerificationSection({ email, onClose }) {
   const [loading, setLoading] = useState(false);
@@ -57,7 +59,6 @@ function ResendVerificationSection({ email, onClose }) {
 
   return (
     <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-      <h3 className="text-sm font-medium mb-2">Haven't received the verification email?</h3>
       {error && (
         <Alert variant="destructive" className="mb-2">
           <AlertDescription>{error}</AlertDescription>
@@ -84,11 +85,7 @@ function ResendVerificationSection({ email, onClose }) {
           >
             {loading ? "Sending..." : "Resend Verification Email"}
           </Button>
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="sm"
-          >
+          <Button onClick={onClose} variant="ghost" size="sm">
             Close
           </Button>
         </div>
@@ -102,10 +99,7 @@ function SuccessMessage({ message, email }) {
   const [timeoutReached, setTimeoutReached] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimeoutReached(true);
-    }, 30000); // Show resend option after 30 seconds
-
+    const timer = setTimeout(() => setTimeoutReached(true), 30000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -116,7 +110,7 @@ function SuccessMessage({ message, email }) {
       <Alert className="mb-4 bg-green-50 text-green-700">
         <AlertDescription>{message}</AlertDescription>
       </Alert>
-      
+
       {timeoutReached && !showResend && (
         <div className="text-center">
           <Button
@@ -128,10 +122,10 @@ function SuccessMessage({ message, email }) {
           </Button>
         </div>
       )}
-      
+
       {showResend && (
-        <ResendVerificationSection 
-          email={email} 
+        <ResendVerificationSection
+          email={email}
           onClose={() => setShowResend(false)}
         />
       )}
@@ -142,13 +136,11 @@ function SuccessMessage({ message, email }) {
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshUser } = useAuth(); // 👈 added
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastUsedEmail, setLastUsedEmail] = useState("");
-  const [formData, setFormData] = useState({
-    email: "",
-    password: ""
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,15 +152,18 @@ function LoginFormContent() {
       const response = await fetch("/api/auth/teacher/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Failed to log in");
       }
 
+      // ✅ Hydrate AuthContext with user from server cookies
+      await refreshUser();
+
+      // ✅ Redirect after login
       router.push("/dashboard/teacher");
     } catch (err) {
       setError(err.message);
@@ -179,13 +174,13 @@ function LoginFormContent() {
 
   return (
     <div className="space-y-4">
-      <SuccessMessage 
+      <SuccessMessage
         message={searchParams.get("success")}
         email={searchParams.get("email") || lastUsedEmail}
       />
 
       {error === "Please verify your email first" && (
-        <ResendVerificationSection 
+        <ResendVerificationSection
           email={formData.email}
           onClose={() => setError("")}
         />
@@ -205,7 +200,9 @@ function LoginFormContent() {
             type="email"
             required
             value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, email: e.target.value }))
+            }
           />
         </div>
 
@@ -224,20 +221,18 @@ function LoginFormContent() {
             type="password"
             required
             value={formData.password}
-            onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, password: e.target.value }))
+            }
           />
         </div>
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading}
-        >
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Logging in..." : "Log In"}
         </Button>
 
         <div className="text-center text-sm">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/auth/teacher/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>
@@ -249,7 +244,7 @@ function LoginFormContent() {
 
 function LoginForm() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="min-h-[300px] flex items-center justify-center">
           <div className="animate-pulse text-gray-400">Loading...</div>

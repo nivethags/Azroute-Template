@@ -32,7 +32,7 @@ export default function ProfileHeader({ user, isEditable }) {
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
-            {isEditable && (
+              {isEditable && (
               <Button
                 size="icon"
                 variant="secondary"

@@ -8,6 +8,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import VoiceRecorder from "@/components/VoiceRecorder";
+
+/* ---- Convert "my mail at gmail dot com" -> "mymail@gmail.com" ---- */
+function normalizeEmailFromSpeech(raw = "") {
+  let s = String(raw).toLowerCase().trim();
+
+  s = s
+    .replace(/\s*(at the rate|at)\s*/g, "@")
+    .replace(/\s*(dot|point)\s*/g, ".")
+    .replace(/\s*(underscore)\s*/g, "_")
+    .replace(/\s*(dash|hyphen)\s*/g, "-")
+    .replace(/\s*(plus)\s*/g, "+")
+    .replace(/\s+/g, "");
+
+  s = s
+    .replace(/\.co m$/g, ".com")
+    .replace(/g ?mail\.com$/g, "gmail.com");
+
+  return s;
+}
+
+/* ---- Voice command matcher: "login", "log in", "please login", etc. ---- */
+function isLoginCommand(text = "") {
+  const t = String(text).toLowerCase().trim();
+  // strip punctuation
+  const cleaned = t.replace(/[.,!?]/g, "").replace(/\s+/g, " ");
+  return (
+    cleaned === "login" ||
+    cleaned === "log in" ||
+    cleaned === "please login" ||
+    cleaned === "please log in" ||
+    cleaned.endsWith(" login") || // e.g. "now login"
+    cleaned.startsWith("login ") || // e.g. "login now"
+    cleaned.includes(" log in")
+  );
+}
 
 function ResendVerificationSection({ email, onClose }) {
   const [loading, setLoading] = useState(false);
@@ -104,8 +140,7 @@ function SuccessMessage({ message, email }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setTimeoutReached(true);
-    }, 30000); // Show resend option after 30 seconds
-
+    }, 30000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -116,7 +151,7 @@ function SuccessMessage({ message, email }) {
       <Alert className="mb-4 bg-green-50 text-green-700">
         <AlertDescription>{message}</AlertDescription>
       </Alert>
-      
+
       {timeoutReached && !showResend && (
         <div className="text-center">
           <Button
@@ -128,10 +163,10 @@ function SuccessMessage({ message, email }) {
           </Button>
         </div>
       )}
-      
+
       {showResend && (
-        <ResendVerificationSection 
-          email={email} 
+        <ResendVerificationSection
+          email={email}
           onClose={() => setShowResend(false)}
         />
       )}
@@ -150,13 +185,22 @@ function LoginFormContent() {
     password: ""
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // shared login logic
+  const doLogin = async () => {
     setError("");
     setLoading(true);
     setLastUsedEmail(formData.email);
 
     try {
+      // simple presence checks
+      if (!formData.email?.trim()) {
+        throw new Error("Please enter your email");
+      }
+      if (!formData.password?.length) {
+        // you want to type password manually due to case sensitivity
+        throw new Error("Please enter your password (case-sensitive)");
+      }
+
       const response = await fetch("/api/auth/student/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -177,15 +221,32 @@ function LoginFormContent() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await doLogin();
+  };
+
+  // when voice near the submit hears "login", trigger submit
+  const handleVoiceCommand = async (text) => {
+    if (isLoginCommand(text)) {
+      await doLogin();
+    } else {
+      // optional: surface what was heard (no-op by default)
+      setError(`Heard: "${text}". Say "login" to submit.`);
+      // auto-clear after a moment
+      setTimeout(() => setError(""), 2500);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <SuccessMessage 
+      <SuccessMessage
         message={searchParams.get("success")}
         email={searchParams.get("email") || lastUsedEmail}
       />
 
       {error === "Please verify your email first" && (
-        <ResendVerificationSection 
+        <ResendVerificationSection
           email={formData.email}
           onClose={() => setError("")}
         />
@@ -198,17 +259,37 @@ function LoginFormContent() {
           </Alert>
         )}
 
+        {/* Email + Voice */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          />
+          <div className="flex items-center justify-between">
+            <Label htmlFor="email">Email</Label>
+            <span className="text-[10px] text-gray-500">
+              say “your email id”
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              id="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className="flex-1"
+              autoComplete="email"
+            />
+            <VoiceRecorder
+              onResult={(text) =>
+                setFormData(prev => ({
+                  ...prev,
+                  email: normalizeEmailFromSpeech(text),
+                }))
+              }
+              buttonClassName="px-3 py-2 border rounded text-sm"
+            />
+          </div>
         </div>
 
+        {/* Password (manual entry; no voice) */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
@@ -225,19 +306,24 @@ function LoginFormContent() {
             required
             value={formData.password}
             onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+            autoComplete="current-password"
           />
         </div>
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading}
-        >
-          {loading ? "Logging in..." : "Log In"}
-        </Button>
+        {/* Submit + Voice Command */}
+        <div className="flex items-center gap-2">
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Log In"}
+          </Button>
+          {/* Small command mic: say "login" to submit */}
+          <VoiceRecorder
+            onResult={handleVoiceCommand}
+            buttonClassName="px-3 py-2 border rounded text-sm"
+          />
+        </div>
 
         <div className="text-center text-sm">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/auth/student/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>
@@ -249,7 +335,7 @@ function LoginFormContent() {
 
 function LoginForm() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="min-h-[300px] flex items-center justify-center">
           <div className="animate-pulse text-gray-400">Loading...</div>

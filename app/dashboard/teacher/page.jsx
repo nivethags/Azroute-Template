@@ -1,21 +1,18 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from '@supabase/auth-helpers-react'; // Supabase session hook
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Loader2, Book, Users, Calendar, DollarSign,
-  Upload, MessageSquare
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Loader2, Book, Users, Calendar, DollarSign, Upload, MessageSquare } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function TeacherDashboard() {
   const router = useRouter();
+  
+  // Supabase session hook
+  const { session, user, isLoading } = useSession() || {}; // Use session hook
+
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +24,27 @@ export default function TeacherDashboard() {
   });
 
   const [recentClasses, setRecentClasses] = useState([]);
+
+  // Loading state or session is null
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    // If session is not available or user is not logged in
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-red-500">Error: User not authenticated.</p>
+        <Button onClick={() => router.push('/auth/teacher/login')}>
+          Return to Login
+        </Button>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const loadStaticData = async () => {
@@ -81,25 +99,6 @@ export default function TeacherDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-red-500">Error: {error}</p>
-        <Button onClick={() => router.push('/auth/teacher/login')}>
-          Return to Login
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8 p-8">
       {/* Header Section */}
@@ -107,7 +106,7 @@ export default function TeacherDashboard() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">
-            Welcome back, {teacher?.name}
+            Welcome back, {user?.user_metadata?.full_name || 'Teacher'} {/* Displaying the user's name */}
           </p>
         </div>
         <DropdownMenu>

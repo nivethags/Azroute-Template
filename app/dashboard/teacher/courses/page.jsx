@@ -317,9 +317,7 @@ export default function TeacherCourses() {
           <h1 className="text-2xl font-bold">My Courses</h1>
           <p className="text-muted-foreground">Manage and monitor your courses</p>
         </div>
-        <Button onClick={() => router.push("/dashboard/teacher/courses/create")}>
-          <Plus className="h-4 w-4 mr-2" /> Create Course
-        </Button>
+       
       </div>
 
       {/* Filters */}

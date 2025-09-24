@@ -1,25 +1,36 @@
+// app/dashboard/teacher/profile/page.jsx
 'use client';
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileTabs } from "@/components/profile/ProfileTabs";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import ProfileHeader from "@/components/profile/ProfileHeader";  // Default import
+import { ProfileTabs } from "@/components/profile/ProfileTabs";  // Named import
+
 
 export default function TeacherProfilePage() {
   const [teacher, setTeacher] = useState(null);
+  const [err, setErr] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    axios.get('/api/teacher/profile')
-      .then(res => {
-        setTeacher(res.data);
-      })
-      .catch(err => {
-        console.error("Profile fetch error:", err);
-      });
-  }, []);
+    (async () => {
+      try {
+        const res = await fetch("/api/teacher/profile", { cache: "no-store" });
+        if (res.status === 401) {
+          router.replace("/auth/teacher/login?next=/dashboard/teacher/profile");
+          return;
+        }
+        const data = await res.json();
+        setTeacher(data);
+      } catch (e) {
+        console.error("Profile fetch error:", e);
+        setErr("Failed to load profile");
+      }
+    })();
+  }, [router]);
 
-  if (!teacher) {
-    return <div className="text-center mt-20">Loading profile...</div>;
-  }
+  if (err) return <div className="text-center mt-20 text-red-600">{err}</div>;
+  if (!teacher) return <div className="text-center mt-20">Loading profile...</div>;
 
   return (
     <div className="min-h-screen bg-background">

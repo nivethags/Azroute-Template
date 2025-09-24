@@ -1,4 +1,4 @@
-// app/api/auth/check/route.js
+// app/api/auth/me/route.js
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
@@ -28,14 +28,13 @@ export async function GET() {
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return new Response(JSON.stringify({ message: "Not authenticated" }), {
-      status: 401,
+    return new Response(JSON.stringify({ user: null }), {
       headers: { "content-type": "application/json" },
     });
   }
 
   return new Response(
-    JSON.stringify({ message: "Authenticated", user: { id: user.id, email: user.email } }),
+    JSON.stringify({ user: { id: user.id, email: user.email } }),
     { headers: { "content-type": "application/json" } }
   );
 }

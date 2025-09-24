@@ -1,98 +1,70 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet";
-import {
-  Bell,
-  Menu,
-  ChevronDown,
-  LogOut,
-  BookOpen,
-  GraduationCap,
-  PlusCircle,
-  Search,
-  Globe,
-  MessageSquare,
-  Calendar,
+  Bell, Menu, ChevronDown, LogOut, BookOpen, GraduationCap,
+  PlusCircle, Globe, MessageSquare, Calendar,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import supabase from "@/lib/supabaseClient"; // ⬅️ default export singleton (see note above)
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sessionUser, setSessionUser] = useState(null); // Supabase auth user
+  const [role, setRole] = useState("student");          // "student" | "teacher"
+  const [coachRow, setCoachRow] = useState(null);       // row from public.coach
   const router = useRouter();
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    checkAuth();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch("/api/auth/check", { credentials: "include" });
-      const data = await response.json();
-      const role = data.user?.role || "student";
-      if (response.ok) {
-        if (data.code === "TOKEN_EXPIRED") {
-          await handleLogout();
-          router.push(`/auth/${role}/login`);
-        }
-        setUser(data.user);
-      }
-    } catch (error) {
-      console.error("Auth check error:", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const role = user?.role || "student";
-      const response = await fetch(`/api/auth/${role}/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (response.ok) {
-        setUser(null);
-        router.push("/");
-      } else {
-        throw new Error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-
+  // ---- helpers ----
   const categories = [
     { name: "Dentistry", href: "/explore?category=dentistry" },
     { name: "Medical", href: "/explore?category=medical" },
     { name: "Nursing", href: "/explore?category=nursing" },
   ];
 
-  const getNavItems = () => {
-    if (user?.role === "teacher") {
-      return [{ label: "My Courses", icon: BookOpen, href: "/dashboard/teacher/courses" }];
-    }
-    return [{ label: "My Learning", icon: BookOpen, href: "/dashboard/student" }];
-  };
+  const notifications = [
+    { id: 1, icon: MessageSquare, text: "Welcome to Azroute! 🎉", href: "/dashboard" },
+    { id: 2, icon: Calendar, text: "Your next class starts at 6:00 PM.", href: "/calendar" },
+  ];
+
+  const avatarRing = role === "student" ? "ring-blue-600 ring-offset-2" : "ring-gray-300 ring-offset-2";
+  const avatarFallbackBg = "text-white bg-[hsl(222.2,47.4%,11.2%)]";
+
+  const getNavItems = () =>
+    role === "teacher"
+      ? [{ label: "My Courses", icon: BookOpen, href: "/dashboard/teacher/courses" }]
+      : [{ label: "My Learning", icon: BookOpen, href: "/dashboard/student" }];
+
+  const user = useMemo(() => {
+    if (!sessionUser) return null;
+    const fullName =
+      coachRow?.full_name ||
+      sessionUser.user_metadata?.full_name ||
+      sessionUser.email;
+
+    const parts = String(fullName || "").trim().split(/\s+/);
+    const firstName = parts[0] || "";
+    const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+    const middleName = parts.length > 2 ? parts.slice(1, -1).join(" ") : "";
+
+    return {
+      role,
+      email: sessionUser.email,
+      firstName,
+      middleName,
+      lastName,
+      profile: { avatar: null },
+    };
+  }, [sessionUser, coachRow, role]);
 
   const getUserFullName = () => {
     if (!user) return "";
@@ -102,30 +74,131 @@ export function Navbar() {
 
   const getUserInitials = () => {
     if (!user) return "AZ";
-    return [user.firstName, user.lastName]
-      .filter(Boolean)
-      .map((name) => name[0])
-      .join("")
-      .toUpperCase();
+    return [user.firstName, user.lastName].filter(Boolean).map(n => n[0]).join("").toUpperCase();
   };
 
-  // Messages shown when clicking the bell
-  const notifications = [
-    { id: 1, icon: MessageSquare, text: "Welcome to Azroute! 🎉", href: "/dashboard" },
-    { id: 2, icon: Calendar, text: "Your next class starts at 6:00 PM.", href: "/calendar" },
-  ];
+  // ---- role resolution ----
+  const fetchCoachByEmail = useCallback(async (email) => {
+    const { data, error } = await supabase
+      .from("coach")
+      .select("id, full_name, email")
+      .eq("email", String(email).toLowerCase())
+      .maybeSingle();
+    if (!error && data) {
+      setCoachRow(data);
+      setRole("teacher");
+    } else {
+      setCoachRow(null);
+      setRole("student");
+    }
+  }, []);
 
-  // Styling for avatar
-  const avatarRing =
-    user?.role === "student" ? "ring-blue-600 ring-offset-2" : "ring-gray-300 ring-offset-2";
-  const avatarFallbackBg = "text-white bg-[hsl(222.2,47.4%,11.2%)]";
+  // Get current user from server cookies (works after server-side login)
+  const hydrateFromServer = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      const data = await res.json();
+      const u = data?.user ?? null;
+      setSessionUser(u);
+
+      if (!u) {
+        setCoachRow(null);
+        setRole("student");
+        return;
+      }
+
+      // Prefer metadata role first
+      const metaRole = u.user_metadata?.role;
+      if (metaRole === "coach") {
+        setRole("teacher");
+        setCoachRow((prev) => prev ?? null);
+        return;
+      }
+      if (metaRole === "student") {
+        setRole("student");
+        setCoachRow(null);
+        return;
+      }
+
+      // Fallback check in coach table
+      await fetchCoachByEmail(u.email);
+    } catch {
+      setSessionUser(null);
+      setCoachRow(null);
+      setRole("student");
+    }
+  }, [fetchCoachByEmail]);
+
+  // ---- effects ----
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", onScroll);
+
+    (async () => {
+      await hydrateFromServer(); // initial hydrate via server
+      setLoading(false);
+    })();
+
+    // auth state subscription (for any client-driven sign-in/out)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const u = session?.user ?? null;
+      setSessionUser(u);
+      if (!u) {
+        setCoachRow(null);
+        setRole("student");
+      } else {
+        const metaRole = u.user_metadata?.role;
+        if (metaRole === "coach") {
+          setRole("teacher");
+          setCoachRow((prev) => prev ?? null);
+        } else if (metaRole === "student") {
+          setRole("student");
+          setCoachRow(null);
+        } else {
+          await fetchCoachByEmail(u.email);
+        }
+      }
+    });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      subscription?.unsubscribe();
+    };
+  }, [hydrateFromServer, fetchCoachByEmail]);
+
+  // ---- logout ----
+  async function handleLogout() {
+    try {
+      const endpoint = role === "teacher" ? "/api/auth/teacher/logout" : "/api/auth/student/logout";
+      const res = await fetch(endpoint, { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error("Logout failed");
+      await supabase.auth.signOut().catch(() => {});
+      setSessionUser(null);
+      setCoachRow(null);
+      setRole("student");
+      router.push("/");
+    } catch (e) {
+      console.error("Logout failed:", e);
+    }
+  }
+
+  // small loading guard to avoid UI flicker on first paint
+  if (loading) {
+    return (
+      <header className="sticky top-0 z-50 w-full bg-white">
+        <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
+          <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
+          <div className="flex items-center space-x-4">
+            <div className="h-8 w-20 bg-gray-100 rounded animate-pulse" />
+            <div className="h-8 w-28 bg-gray-100 rounded animate-pulse" />
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
-    <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white ${
-        isScrolled ? "shadow-sm" : ""
-      }`}
-    >
+    <header className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white ${isScrolled ? "shadow-sm" : ""}`}>
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href={user ? `/dashboard/${user.role}` : "/"} className="flex items-center space-x-2">
@@ -135,24 +208,18 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          {/* Clickable "search bar" that routes to dashboard search */}
-        
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="font-medium text-gray-700 hover:text-blue-600">
-                {/* minimal trigger per your layout */}
-              </Button>
+              <Button variant="ghost" className="font-medium text-gray-700 hover:text-blue-600" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64">
-              {categories.map((category) => (
-                <DropdownMenuItem key={category.name} className="py-2">
-                  <Link href={category.href} className="w-full">
-                    {category.name}
-                  </Link>
+              {categories.map((c) => (
+                <DropdownMenuItem key={c.name} className="py-2" asChild>
+                  <Link href={c.href} className="w-full">{c.name}</Link>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="py-2">
+              <DropdownMenuItem className="py-2" asChild>
                 <Link href="/request-category" className="flex items-center w-full text-blue-600">
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Request New Category
@@ -176,11 +243,7 @@ export function Navbar() {
           </Button>
 
           {!user && (
-            <Button
-              variant="ghost"
-              asChild
-              className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
-            >
+            <Button variant="ghost" asChild className="font-medium text-gray-700 hover:text-blue-600 transition-colors">
               <Link href="/auth/teacher/login">Coach on Azroute</Link>
             </Button>
           )}
@@ -188,20 +251,11 @@ export function Navbar() {
 
         {/* Right Section */}
         <div className="flex items-center space-x-6">
-          {/* Mobile search icon → dashboard search or explore */}
-          
-
           {user ? (
             <>
-              {/* Bell icon WITHOUT numeric badge; opens a message dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-gray-700 hover:text-blue-600"
-                    aria-label="Notifications"
-                  >
+                  <Button variant="ghost" size="icon" className="text-gray-700 hover:text-blue-600" aria-label="Notifications">
                     <Bell className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -223,21 +277,14 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Profile */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="flex items-center space-x-2 hover:bg-gray-100/80"
-                    aria-label="User menu"
-                  >
+                  <Button variant="ghost" className="flex items-center space-x-2 hover:bg-gray-100/80" aria-label="User menu">
                     <Avatar className={`h-8 w-8 ring ${avatarRing}`}>
                       {user.profile?.avatar ? (
                         <AvatarImage src={user.profile.avatar} alt={getUserFullName()} />
                       ) : (
-                        <AvatarFallback className={avatarFallbackBg}>
-                          {getUserInitials()}
-                        </AvatarFallback>
+                        <AvatarFallback className={avatarFallbackBg}>{getUserInitials()}</AvatarFallback>
                       )}
                     </Avatar>
                     <ChevronDown className="h-4 w-4 text-gray-600" />
@@ -247,7 +294,7 @@ export function Navbar() {
                   <DropdownMenuLabel className="p-4">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">{getUserFullName()}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-xs text-gray-500">{sessionUser?.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -269,17 +316,12 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Button
-                variant="ghost"
-                className="font-medium text-gray-700 hover:text-blue-600"
-                onClick={() => router.push("/auth/student/login")}
-              >
+              <Button variant="ghost" className="font-medium text-gray-700 hover:text-blue-600"
+                onClick={() => router.push("/auth/student/login")}>
                 Log In
               </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium shadow-md hover:shadow-lg transition-all"
-                onClick={() => router.push("/auth/student/signup")}
-              >
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium shadow-md hover:shadow-lg transition-all"
+                onClick={() => router.push("/auth/student/signup")}>
                 Get Started
               </Button>
             </>
@@ -306,9 +348,7 @@ export function Navbar() {
                         {user.profile?.avatar ? (
                           <AvatarImage src={user.profile.avatar} alt={getUserFullName()} />
                         ) : (
-                          <AvatarFallback className={avatarFallbackBg}>
-                            {getUserInitials()}
-                          </AvatarFallback>
+                          <AvatarFallback className={avatarFallbackBg}>{getUserInitials()}</AvatarFallback>
                         )}
                       </Avatar>
                       <div>

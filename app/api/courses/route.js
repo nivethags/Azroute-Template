@@ -1,176 +1,119 @@
-import { connectDB } from "@/lib/mongodb";
-import Course from "@/models/Course";
-import Teacher from "@/models/Teacher";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-export async function GET(request) {
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+
+async function supabaseServer() {
+  const store = await cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        get(name) {
+          return store.get(name)?.value ?? null;
+        },
+        set(name, value, options) {
+          store.set(name, value, options);
+        },
+        remove(name, options) {
+          store.set(name, "", { ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
+}
+
+/**
+ * GET /api/courses
+ * Optional query: ?mine=1 to only fetch courses of the signed-in coach
+ */
+export async function GET(req) {
   try {
-    const { searchParams } = new URL(request.url);
-    const domain = searchParams.get('domain');
-    const level = searchParams.get('level');
-    const search = searchParams.get('search');
-    const sort = searchParams.get('sort') || 'newest';
-    const page = parseInt(searchParams.get('page')) || 1;
-    const limit = parseInt(searchParams.get('limit')) || 12;
-    const teacher = searchParams.get('teacher');
+    const supabase = await supabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    await connectDB();
+    const url = new URL(req.url);
+    const mine = url.searchParams.get("mine") === "1";
 
-    // Build query
-    let query = {};
-    
-    // Domain filter
-    if (domain) {
-      query.domain = { $regex: new RegExp(domain, 'i') };
-    }
-    
-    // Level filter
-    if (level) {
-      query.level = level;
-    }
-    
-    // Teacher filter
-    if (teacher && teacher !== 'all') {
-      query.teacherId = teacher;
-    }
-    
-    // Search filter
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { 'teacherName': { $regex: search, $options: 'i' } }
-      ];
+    let query = supabase.from("course")
+      .select("id, title, description, level, price, status, coach_id, created_at, updated_at")
+      .order("created_at", { ascending: false });
+
+    if (mine && user?.email) {
+      // join via coach email
+      // Fetch the coach id for current user
+      const { data: coach } = await supabase
+        .from("coach")
+        .select("id")
+        .eq("email", user.email)
+        .maybeSingle();
+
+      if (coach?.id) query = query.eq("coach_id", coach.id);
+      else return json({ ok: true, data: [] }, 200);
     }
 
-    // Build sort
-    let sortQuery = {};
-    switch (sort) {
-      case 'price-asc':
-        sortQuery.price = 1;
-        break;
-      case 'price-desc':
-        sortQuery.price = -1;
-        break;
-      case 'rating':
-        sortQuery.averageRating = -1;
-        sortQuery.totalReviews = -1;
-        break;
-      case 'popular':
-        sortQuery.enrolledStudents = -1;
-        break;
-      default:
-        sortQuery.createdAt = -1;
-    }
+    const { data, error } = await query;
+    if (error) return json({ ok: false, message: error.message }, 400);
 
-    // Execute queries
-    const [total, courses] = await Promise.all([
-      Course.countDocuments(query),
-      Course.find(query)
-        .sort(sortQuery)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('teacherId', 'firstName lastName email phoneNumber department qualification experience subjectsToTeach bio profileImage stats')
-    ]);
-
-    // Transform the data to include teacher information
-    const transformedCourses = courses.map(course => {
-      const courseObj = course.toObject();
-      const teacher = courseObj.teacherId;
-      
-      return {
-        ...courseObj,
-        teacherName: teacher ? `${teacher.firstName} ${teacher.lastName}` : courseObj.teacherName,
-        teacherAvatar: teacher?.profileImage,
-        teacherSpecialty: teacher?.department,
-        teacher: teacher ? {
-          id: teacher._id,
-          name: `${teacher.firstName} ${teacher.lastName}`,
-          email: teacher.email,
-          phoneNumber: teacher.phoneNumber,
-          department: teacher.department,
-          qualification: teacher.qualification,
-          experience: teacher.experience,
-          subjectsToTeach: teacher.subjectsToTeach,
-          bio: teacher.bio,
-          profileImage: teacher.profileImage,
-          stats: {
-            totalStudents: teacher.stats.totalStudents,
-            activeCourses: teacher.stats.activeCourses,
-            completionRate: teacher.stats.completionRate
-          }
-        } : null
-      };
-    });
-
-    return Response.json({
-      courses: transformedCourses,
-      total,
-      pages: Math.ceil(total / limit),
-      currentPage: page,
-      hasMore: page < Math.ceil(total / limit)
-    });
-    
-  } catch (error) {
-    console.error('Courses fetch error:', error);
-    return Response.json(
-      { message: "Failed to fetch courses" },
-      { status: 500 }
-    );
+    return json({ ok: true, data });
+  } catch (e) {
+    console.error("GET /api/courses error:", e);
+    return json({ ok: false, message: "Failed to fetch courses" }, 500);
   }
 }
 
-// Helper function to get featured teachers for a domain
-export async function getFeaturedTeachers(domain) {
+/**
+ * POST /api/courses
+ * Body: { title, description?, level?, price?, status? }
+ * Requires signed-in coach; will attach coach_id automatically.
+ */
+export async function POST(req) {
   try {
-    const teachers = await Teacher.aggregate([
-      {
-        $match: {
-          verified: true,
-          subjectsToTeach: { $regex: new RegExp(domain, 'i') }
-        }
-      },
-      {
-        $lookup: {
-          from: 'courses',
-          localField: '_id',
-          foreignField: 'teacherId',
-          as: 'courses'
-        }
-      },
-      {
-        $addFields: {
-          coursesCount: { $size: '$courses' },
-          totalStudents: '$stats.totalStudents',
-          completionRate: '$stats.completionRate'
-        }
-      },
-      {
-        $sort: {
-          totalStudents: -1,
-          completionRate: -1
-        }
-      },
-      {
-        $limit: 4
-      },
-      {
-        $project: {
-          _id: 1,
-          name: { $concat: ['$firstName', ' ', '$lastName'] },
-          profileImage: 1,
-          department: 1,
-          qualification: 1,
-          experience: 1,
-          bio: 1,
-          coursesCount: 1,
-          stats: 1
-        }
-      }
-    ]);
+    const body = await req.json();
+    const supabase = await supabaseServer();
 
-    return teachers;
-  } catch (error) {
-    console.error('Featured teachers fetch error:', error);
-    throw error;
+    // must be signed in
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !user) return json({ message: "Not authenticated" }, 401);
+
+    // find coach row for this user by email
+    const { data: coachRow, error: coachErr } = await supabase
+      .from("coach")
+      .select("id, email, full_name")
+      .eq("email", user.email)
+      .maybeSingle();
+
+    if (coachErr) return json({ message: coachErr.message }, 400);
+    if (!coachRow) return json({ message: "Coach profile not found for this user" }, 403);
+
+    const payload = {
+      title: String(body.title || "").trim(),
+      description: body.description ?? null,
+      level: body.level ?? null,
+      price: body.price != null ? Number(body.price) : 0,
+      status: body.status ?? "active",
+      coach_id: coachRow.id,
+    };
+
+    if (!payload.title) return json({ message: "Title is required" }, 400);
+
+    // insert (RLS will allow because coach_id matches auth user email per policy)
+    const { data, error } = await supabase
+      .from("course")
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) return json({ message: error.message }, 400);
+
+    return json({ message: "Course created", data }, 201);
+  } catch (e) {
+    console.error("POST /api/courses error:", e);
+    return json({ message: "Failed to create course" }, 500);
   }
 }
